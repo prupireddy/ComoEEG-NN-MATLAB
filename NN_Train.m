@@ -10,9 +10,9 @@
 % function properly.
 %% User-Defined Parameters
 
-in_str = 'P5_Features.mat'; % input filename
-mat_str = 'P5_NN.mat'; % output filename (.mat)
-onnx_str = 'P5_NN.onnx'; % output filename (ONNX network)
+in_str = 'P6_Features.mat'; % input filename
+mat_str = 'P6_NN.mat'; % output filename (.mat)
+onnx_str = 'P6_NN.onnx'; % output filename (ONNX network)
 
 train_rat = 0.5; % proportion of inputs to go into the training set
 
