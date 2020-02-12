@@ -8,7 +8,7 @@ Input: Patient #(insert patient number).edf - raw EDF EEG
 Output: P(insert patient number)_EEG.mat - MATLAB EEG
 
 2. PSD: Generates Features using PSD
-Input: P(insert patient number)_Annotations.xslx (Warning: Don't use the text file with the same name) - Contains Seizure On/Off Set Times
+Input: P(insert patient number)_Annotations.xslx - Contains Seizure On/Off Set Times
 + P(insert patient number)_EEG.mat (O from previous) - MATLAB EEG
 Output: P(insert patient number)_Features - Features
 
