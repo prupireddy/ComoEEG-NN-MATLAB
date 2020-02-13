@@ -17,4 +17,4 @@ Input: P(Insert patient number)_Features - Features
 Output: Accuracy is outputted in the command line and P(insert patient number)_NN.onnx - NN Classifier for Jetson Nano
 
 *The actual implementation is pretty easy. At the very beginning of each program, there is a section for "user-defined parameters". Just 
-change the patient number in the file names and change the current directory to the one with that patient's files and you are all set. 
+change the patient number in the file names and change the current directory to the one with that patient's files and you are all set. )
