@@ -74,12 +74,13 @@ tomare = 60; % time at which while loop forcibly terminates (sec)
 
 %% Script
 
-% load input data
+%load input data
 load(data_str);
 seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
 n_chan = length(chanlocs);
 tr_pts = tr_len * srate;
+five_trials = tr_pts*5;
 
 % Parse timestamp array into seconds
 seiz_sec = zeros(length(seiz_array),1); % initialize sseconds-only array
@@ -201,44 +202,4 @@ end
 
 % Merge arrays
 nn_inputs = [nn_inter;nn_ictal];
-
-%{
-% Fill arrays
-T = floor(n_pts / (n_tr+1)); % trial collection period
-for k = 1:n_tr % for each trial
-    i_start = (k-1)*T + 1; % starting index for the current trial
-    i_end = i_start + tr_pts; % ending index
-    
-    % Fill out entry in Targets
-    seiz_weight = mean(s(i_start:i_end)); % see user section for details
-    if seiz_weight > thr % if the trial qualifies as ictal
-        nn_targets(k) = 1; % update Targets
-    end
-    
-    % Fill out entries in Inputs
-    for q = 1:n_chan % for each channel
-        d_temp = data(q,i_start:i_end); % find relevant section of data
-        sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
-        switch pwr_mode
-            case 'abs'
-                sp_temp = abs(sp_temp);
-            case 'real'
-                sp_temp = real(sp_temp);
-            case 'imag'
-                sp_temp = imag(sp_temp);
-            otherwise
-                error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
-        end
-        for qq = 1:n_bands % for each desired frequency band
-            f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
-            f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
-            sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
-            i_pwr = (q-1)*n_bands + qq; % current index
-            m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-        end
-    end
-    nn_inputs{k} = m_pwr; % update input array
-end
-%}
-% Save results
 save(out_str,'nn_inputs','nn_targets','-v7.3');
