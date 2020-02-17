@@ -32,7 +32,7 @@
 
 data_str = 'P10_EEG.mat'; % input filename (data)
 times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P10_Features.mat'; % output filename
+out_str = 'P10_Features_New.mat'; % output filename
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
@@ -80,7 +80,7 @@ seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
 n_chan = length(chanlocs);
 tr_pts = tr_len * srate;
-five_trials = tr_pts*5;
+five_tr_pts = tr_pts*5;
 
 % Parse timestamp array into seconds
 seiz_sec = zeros(length(seiz_array),1); % initialize sseconds-only array
@@ -138,7 +138,7 @@ while ictal_bool == false && inter_bool == false % while the two categories are 
     i_0 = randi(start_max);
     % Check whether the bin starting at this location is ictal or
     % interictal
-    seiz_weight = mean(s(i_0:(i_0+tr_pts)));
+    seiz_weight = mean(s(i_0:(i_0+five_tr_pts)));
     if seiz_weight > thr % if the trial qualifies as ictal
         if n_ictal <= n_tr % if the bin is not full
             % Fill out entries in Inputs
