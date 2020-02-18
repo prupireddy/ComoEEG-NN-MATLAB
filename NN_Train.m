@@ -10,7 +10,7 @@
 % function properly.
 %% User-Defined Parameters
 
-in_str = 'P10_Features.mat'; % input filename
+in_str = 'P10_Train_and_Test.mat'; % input filename
 mat_str = 'P10_NN.mat'; % output filename (.mat)
 onnx_str = 'P10_NN.onnx'; % output filename (ONNX network)
 
