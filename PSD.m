@@ -38,7 +38,7 @@ out_str = 'P10_Train_and_Test.mat'; % output filename
 % directory to the correct location beforehand. Output extension should be
 % .mat.
 
-tr_len = 5; % trial length (s) (recommended: 20)
+tr_len = 20; % trial length (s) (recommended: 20)
 n_tr_train = 250;
 n_tr_test = 250;
 % number of trials to collect for each state, train and test
@@ -84,8 +84,10 @@ seiz_array = table2array(seiz_table);
 n_chan = length(chanlocs);
 tr_pts = tr_len * srate;
 
-%Number of trial points for m batches
+%Defining n and m
+n = 3;
 m = 5;
+
 m_tr_pts = tr_pts*m; 
 
 % Parse timestamp array into seconds
@@ -210,10 +212,13 @@ end
 XTrain = [nn_inter_train;nn_ictal_train];
 
 
-%Test Arrays
+%Test Input Arrays (Pre-Concatenation)
 nn_ictal_test = cell(n_tr_test,1);
 nn_inter_test = cell(n_tr_test,1);
-YTest = [zeros(n_tr_test,1);ones(n_tr_test,1)];
+
+%YTest
+m_n_predictions = n_tr_test/m;
+YTest = [zeros(m_n_predictions,1);ones(m_n_predictions,1)];
 
 %Variables for test loop
 start_max_test = n_pts - m_tr_pts; % maximum index at which a trial can start
