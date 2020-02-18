@@ -128,18 +128,18 @@ YTrain = [zeros(n_tr_train,1);ones(n_tr_train,1)];
 start_max_train = n_pts - tr_pts; % maximum index at which a trial can start
 ictal_bool = false;
 inter_bool = false;
-n_ictal = 1;
-n_inter = 1;
+n_ictal_train = 1;
+n_inter_train = 1;
 
 %This is the Train Generation
 while ictal_bool == false && inter_bool == false     
     % Grab a random data point to start from
-    i_0 = randi(start_max_test);
+    i_0 = randi(start_max_train);
     % Check whether the bin starting at this location is ictal or
     % interictal
     seiz_weight = mean(s(i_0:(i_0+tr_pts)));
     if seiz_weight > thr % if the trial qualifies as ictal
-        if n_ictal <= n_tr_train % if the bin is not full
+        if n_ictal_train <= n_tr_train % if the bin is not full
             % Fill out entries in Inputs
             for q = 1:n_chan % for each channel
                 d_temp = data(q,i_0:(i_0+tr_pts)); % find relevant section of data
@@ -162,13 +162,13 @@ while ictal_bool == false && inter_bool == false
                     m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
                 end
             end
-            nn_ictal_train{n_ictal} = m_pwr; % update input array
-            n_ictal = n_ictal + 1; % update count of ictal trials
+            nn_ictal_train{n_ictal_train} = m_pwr; % update input array
+            n_ictal_train = n_ictal_train + 1; % update count of ictal trials
         else % if the bin is full
             ictal_bool = true;
         end
     else % if the trial qualifies as interictal
-        if n_inter <= n_tr_train % if the bin is not full
+        if n_inter_train <= n_tr_train % if the bin is not full
             % Fill out entries in Inputs
             for q = 1:n_chan % for each channel
                 d_temp = data(q,i_0:(i_0+tr_pts)); % find relevant section of data
@@ -191,8 +191,8 @@ while ictal_bool == false && inter_bool == false
                     m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
                 end
             end
-            nn_inter_train{n_inter} = m_pwr; % update input array
-            n_inter = n_inter + 1; % update count of interictal trials
+            nn_inter_train{n_inter_train} = m_pwr; % update input array
+            n_inter_train = n_inter_train + 1; % update count of interictal trials
         else % if the bin is full
             inter_bool = true;
         end
@@ -200,6 +200,7 @@ while ictal_bool == false && inter_bool == false
 end
 
 XTrain = [nn_inter_train;nn_ictal_train];
+
 
 %Test Arrays
 nn_ictal_test = cell(n_tr_test,1);
@@ -210,8 +211,8 @@ YTest = [zeros(n_tr_test,1);ones(n_tr_test,1)];
 start_max_test = n_pts - m_tr_pts; % maximum index at which a trial can start
 ictal_bool = false;
 inter_bool = false;
-n_ictal = 1;
-n_inter = 1;
+n_ictal_test = 1;
+n_inter_test = 1;
 
 %This is the Test Generation
 while ictal_bool == false && inter_bool == false
@@ -245,14 +246,14 @@ while ictal_bool == false && inter_bool == false
                         m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
                     end
                 end
-                nn_ictal_test{n_ictal} = m_pwr; % update input array
-                n_ictal = n_ictal + 1; % update count of ictal trials
+                nn_ictal_test{n_ictal_test} = m_pwr; % update input array
+                n_ictal_test = n_ictal_test + 1; % update count of ictal trials
             end
         else % if the bin is full
             ictal_bool = true;
         end
     else % if the trial qualifies as interictal
-        if n_inter <= n_tr_test % if the bin is not full
+        if n_inter_test <= n_tr_test % if the bin is not full
             % Fill out entries in Inputs
             for m=1:5
                 for q = 1:n_chan % for each channel
@@ -276,8 +277,8 @@ while ictal_bool == false && inter_bool == false
                         m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
                     end
                 end
-                nn_inter_test{n_inter} = m_pwr; % update input array
-                n_inter = n_inter + 1; % update count of interictal trials
+                nn_inter_test{n_inter_test} = m_pwr; % update input array
+                n_inter_test = n_inter_test + 1; % update count of interictal trials
             end
         else % if the bin is full
             inter_bool = true;
@@ -288,3 +289,4 @@ end
 XTest = [nn_inter_test;nn_ictal_test]
 
 save(out_str,'XTrain','XTest','YTrain','YTest','-v7.3');
+
