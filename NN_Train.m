@@ -14,7 +14,7 @@ in_str = 'P10_Train_and_Test.mat'; % input filename
 mat_str = 'P10_NN.mat'; % output filename (.mat)
 onnx_str = 'P10_NN.onnx'; % output filename (ONNX network)
 
-train_rat = 0.5; % proportion of inputs to go into the training set
+YTruePred = zeros(m_n_predictions,1);
 
 numHiddenUnits = 200; % number of hidden units in the LSTM layer
 % This variable controls the complexity of the neural network, I think.
@@ -43,8 +43,6 @@ YTest = YTest(1:length(XTest));
 % Categorize labels and display assignment results.
 YTrain = categorical(YTrain);
 YTest = categorical(YTest);
-tracker_str = ['The training set contains ',num2str(tracker(1,1)),' ictal and ',num2str(tracker(1,2)),' interictal observations.',newline,'The test set contains ',num2str(tracker(2,1)),' ictal and ',num2str(tracker(2,2)),' incterictal observations.'];
-disp(tracker_str);
 
 % Define LSTM Network Architecture
 inputSize = length(XTrain{1}); % input size (number of features)
@@ -62,7 +60,21 @@ net = trainNetwork(XTrain,YTrain,layers,options);
 
 % Test network accuracy using test set
 YPred = classify(net,XTest);
-acc = sum(YPred == YTest)./numel(YTest)
+
+StartIndex = 1;
+
+for k = 1:m_n_predictions
+    predweight = mean(YPred(StartIndex:StartIndex+(m-1),1)); 
+    if predweight >= (n/m)
+        YTruePred(k)= 1;
+    else
+        YTruePred(k)= 0;
+    end
+    StartIndex = StartIndex + m;
+end
+
+acc = sum(YTruePred == YTest)./numel(YTest);
+disp(acc);
 
 % Export files
 save(mat_str,'net','acc');
