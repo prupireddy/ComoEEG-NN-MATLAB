@@ -39,7 +39,9 @@ out_str = 'P10_Features.mat'; % output filename
 % .mat.
 
 tr_len = 20; % trial length (s) (recommended: 20)
-n_tr = 500; % number of trials to collect for each state
+n_tr_train = 500;
+n_tr_test = 500;
+% number of trials to collect for each state, train and test
 % In this version of the code, trials are collected from random points in
 % the dataset until [n_tr] trials of both states are found.
 
@@ -81,10 +83,8 @@ seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
 n_chan = length(chanlocs);
 tr_pts = tr_len * srate;
-%disp(tr_pts)
 m = 5;
-%m_tr_pts = tr_pts*m;
-%disp(m_tr_pts)
+m_tr_pts = tr_pts*m; %Number of trial points for m batches
 
 % Parse timestamp array into seconds
 seiz_sec = zeros(length(seiz_array),1); % initialize sseconds-only array
@@ -117,33 +117,26 @@ sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 
-% Fill arrays
-nn_targets = [zeros(n_tr,1);ones(n_tr,1)];
-start_max = n_pts - tr_pts; % maximum index at which a trial can start
+% Fill Train arrays
+nn_ictal_train = cell(n_tr_train,1);
+nn_inter_train = cell(n_tr_train,1);
+XTrain = cell(2*n_tr_train,1);
+YTrain = [zeros(n_tr_train,1);ones(n_tr_train,1)];
+
+%Variables for train loop
+start_max_train = n_pts - tr_pts; % maximum index at which a trial can start
 ictal_bool = false;
 inter_bool = false;
-nn_ictal = cell(n_tr,1);
-nn_inter = cell(n_tr,1);
 n_ictal = 1;
 n_inter = 1;
-n_loop = 0; % number of loops
 
-tic
-while ictal_bool == false && inter_bool == false % while the two categories are not full
-    % throw an error if the code has run too long
-    toki = toc;
-    if toki > tomare
-        error_str = ['With the current variables, the script found ',num2str(n_ictal),' ictal and ',num2str(n_inter),' interictal observations in time.'];
-        disp(error_str);
-        error('Script could not locate enough trials in time. Reduce the number of trials you are looking for or give the program more time to function.');
-    end
-    
+%This is the Train Generation
+while ictal_bool == false && inter_bool == false     
     % Grab a random data point to start from
-    i_0 = randi(start_max);
+    i_0 = randi(start_max_test);
     % Check whether the bin starting at this location is ictal or
     % interictal
-    seiz_weight = mean(s(i_0:(i_0+tr_pts)));
-    %seiz_weight = mean(s(i_0:(i_0+ m_tr_pts)));
+    seiz_weight = mean(s(i_0:(i_0+tr_pts)));;
     if seiz_weight > thr % if the trial qualifies as ictal
         if n_ictal <= n_tr % if the bin is not full
             % Fill out entries in Inputs
@@ -168,7 +161,7 @@ while ictal_bool == false && inter_bool == false % while the two categories are 
                     m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
                 end
             end
-            nn_ictal{n_ictal} = m_pwr; % update input array
+            nn_ictal_train{n_ictal} = m_pwr; % update input array
             n_ictal = n_ictal + 1; % update count of ictal trials
         else % if the bin is full
             ictal_bool = true;
@@ -197,7 +190,7 @@ while ictal_bool == false && inter_bool == false % while the two categories are 
                     m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
                 end
             end
-            nn_inter{n_inter} = m_pwr; % update input array
+            nn_inter_train{n_inter} = m_pwr; % update input array
             n_inter = n_inter + 1; % update count of interictal trials
         else % if the bin is full
             inter_bool = true;
@@ -205,6 +198,89 @@ while ictal_bool == false && inter_bool == false % while the two categories are 
     end
 end
 
+%Test Arrays
+nn_ictal_test = cell(n_tr_test_1);
+nn_inter_test = cell(n_tr_test,1);
+XTest = cell(2*n_tr_test,1);
+YTest = [zeros(n_tr_test,1);ones(n_tr_test,1)];
+
+%Variables for test loop
+start_max_test = n_pts - m_tr_pts; % maximum index at which a trial can start
+ictal_bool = false;
+inter_bool = false;
+n_ictal = 1;
+n_inter = 1;
+
+%This is the Test Generation
+while ictal_bool == false && inter_bool == false
+    % Grab a random data point to start from
+    i_0 = randi(start_max);
+    % Check whether the bin starting at this location is ictal or
+    % interictal
+    seiz_weight = mean(s(i_0:(i_0+ m_tr_pts)));
+    if seiz_weight > thr % if the trial qualifies as ictal
+        if n_ictal <= n_tr % if the bin is not full
+            % Fill out entries in Inputs
+            for q = 1:n_chan % for each channel
+                d_temp = data(q,i_0:(i_0+tr_pts)); % find relevant section of data
+                sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
+                switch pwr_mode
+                    case 'abs'
+                        sp_temp = abs(sp_temp);
+                    case 'real'
+                        sp_temp = real(sp_temp);
+                    case 'imag'
+                        sp_temp = imag(sp_temp);
+                    otherwise
+                        error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
+                end
+                for qq = 1:n_bands % for each desired frequency band
+                    f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
+                    f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
+                    sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
+                    i_pwr = (q-1)*n_bands + qq; % current index
+                    m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
+                end
+            end
+            nn_ictal_test{n_ictal} = m_pwr; % update input array
+            n_ictal = n_ictal + 1; % update count of ictal trials
+        else % if the bin is full
+            ictal_bool = true;
+        end
+    else % if the trial qualifies as interictal
+        if n_inter <= n_tr % if the bin is not full
+            % Fill out entries in Inputs
+            for q = 1:n_chan % for each channel
+                d_temp = data(q,i_0:(i_0+tr_pts)); % find relevant section of data
+                sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
+                switch pwr_mode
+                    case 'abs'
+                        sp_temp = abs(sp_temp);
+                    case 'real'
+                        sp_temp = real(sp_temp);
+                    case 'imag'
+                        sp_temp = imag(sp_temp);
+                    otherwise
+                        error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
+                end
+                for qq = 1:n_bands % for each desired frequency band
+                    f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
+                    f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
+                    sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
+                    i_pwr = (q-1)*n_bands + qq; % current index
+                    m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
+                end
+            end
+            nn_inter_test{n_inter} = m_pwr; % update input array
+            n_inter = n_inter + 1; % update count of interictal trials
+        else % if the bin is full
+            inter_bool = true;
+        end
+    end
+end
+
+
 % Merge arrays
-nn_inputs = [nn_inter;nn_ictal];
-save(out_str,'nn_inputs','nn_targets','-v7.3');
+XTrain = [nn_inter_train;nn_ictal_train];
+XTest = [nn_inter_test;nn_ictal_test]
+save(out_str,'XTrain','XTest','YTrain','YTest','-v7.3');
