@@ -34,58 +34,6 @@ options = trainingOptions('adam', ...
 % Load input variables
 load(in_str);
 
-%{
-% Transpose target array (n.b. future updates to tk_dataprep may invalidate
-% the necessity for this line, so comment this out if the target array is
-% already vertical)
-nn_targets = transpose(nn_targets);
-%}
-
-% Separate data into training and target sets (this script does so
-% randomly, with a proportion determined by the user. Make sure there are
-% enough observations made by the previous scripts for this to work.
-n_obs = length(nn_inputs); % fetches number of features and observations
-% Array Initialization
-XTrain = cell(floor(n_obs*train_rat),1);
-YTrain = zeros(n_obs*train_rat,1);
-XTest = cell(floor(n_obs*(1-train_rat)),1);
-YTest = zeros(n_obs*(1-train_rat),1);
-% These initializations are rough, so some extra memory will inevitably
-% have to be reallocated to one of them due to the nature of the sorting.
-
-n_train = 1; % number of training observations recorded (offset 1 for index reasons)
-n_test = 1;
-
-tracker = zeros(2,2); % tracks ictal/interictal observations in each set
-
-for k = 1:n_obs % for each observation
-    Q = rand; % generate random number
-    if (Q < train_rat) && (n_train <= length(XTrain)) % add observation k to the training set, if there is room
-        % n.b. indexing errors will occur if there are less observations
-        % than there are features, due to how length() works. But you
-        % should have more than 176 observations for reasons besides this
-        % as well.
-        XTrain{n_train} = nn_inputs{k}; % update training set
-        YTrain(n_train) = nn_targets(k);
-        n_train = n_train + 1;
-        % update tracker information
-        if nn_targets(k) == 1
-            tracker(1,1) = tracker(1,1) + 1;
-        else
-            tracker(1,2) = tracker(1,2) + 1;
-        end
-    else % observation is in the test set
-        XTest{n_test} = nn_inputs{k}; % update test set
-        YTest(n_test) = nn_targets(k);
-        n_test = n_test + 1;
-        % update tracker information
-        if nn_targets(k) == 1
-            tracker(2,1) = tracker(2,1) + 1;
-        else
-            tracker(2,2) = tracker(2,2) + 1;
-        end
-    end
-end
 % Trim empty observations from data
 XTrain(cellfun('isempty',XTrain))=[];
 YTrain = YTrain(1:length(XTrain));
@@ -101,10 +49,6 @@ disp(tracker_str);
 % Define LSTM Network Architecture
 inputSize = length(XTrain{1}); % input size (number of features)
 numClasses = 2;
-% This project only distinguishes ictal and interictal data; hence the
-% number of classes is locked at 2. It would be interesting to modify the
-% code to accept more classes in the future, but currently there is no
-% cause to do so.
 
 layers = [ ...
     sequenceInputLayer(inputSize)
