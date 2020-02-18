@@ -38,9 +38,9 @@ out_str = 'P10_Train_and_Test.mat'; % output filename
 % directory to the correct location beforehand. Output extension should be
 % .mat.
 
-tr_len = 20; % trial length (s) (recommended: 20)
-n_tr_train = 500;
-n_tr_test = 500;
+tr_len = 5; % trial length (s) (recommended: 20)
+n_tr_train = 250;
+n_tr_test = 250;
 % number of trials to collect for each state, train and test
 % In this version of the code, trials are collected from random points in
 % the dataset until [n_tr] trials of both states are found.
@@ -126,13 +126,15 @@ YTrain = [zeros(n_tr_train,1);ones(n_tr_train,1)];
 
 %Variables for train loop
 start_max_train = n_pts - tr_pts; % maximum index at which a trial can start
-ictal_bool = false;
-inter_bool = false;
+ictal_bool_train = false;
+inter_bool_train = false;
+condition_train  = false;
+n_loops_train = 1;
 n_ictal_train = 1;
 n_inter_train = 1;
 
 %This is the Train Generation
-while ictal_bool == false && inter_bool == false     
+while condition_train == false   
     % Grab a random data point to start from
     i_0 = randi(start_max_train);
     % Check whether the bin starting at this location is ictal or
@@ -165,7 +167,7 @@ while ictal_bool == false && inter_bool == false
             nn_ictal_train{n_ictal_train} = m_pwr; % update input array
             n_ictal_train = n_ictal_train + 1; % update count of ictal trials
         else % if the bin is full
-            ictal_bool = true;
+            ictal_bool_train = true;
         end
     else % if the trial qualifies as interictal
         if n_inter_train <= n_tr_train % if the bin is not full
@@ -194,8 +196,14 @@ while ictal_bool == false && inter_bool == false
             nn_inter_train{n_inter_train} = m_pwr; % update input array
             n_inter_train = n_inter_train + 1; % update count of interictal trials
         else % if the bin is full
-            inter_bool = true;
+            inter_bool_train = true;
         end
+    end
+    n_loops_train = n_loops_train+1;
+    if inter_bool_train == true && ictal_bool_train == true
+        condition_train = true;
+    else 
+        condition_train = false;
     end
 end
 
@@ -209,20 +217,23 @@ YTest = [zeros(n_tr_test,1);ones(n_tr_test,1)];
 
 %Variables for test loop
 start_max_test = n_pts - m_tr_pts; % maximum index at which a trial can start
-ictal_bool = false;
-inter_bool = false;
+ictal_bool_test = false;
+inter_bool_test = false;
+condition_test  = false;
+n_loops_test=1;
 n_ictal_test = 1;
 n_inter_test = 1;
 
+
 %This is the Test Generation
-while ictal_bool == false && inter_bool == false
+while condition_test == false
     % Grab a random data point to start from
     i_0 = randi(start_max_test);
     % Check whether the bin starting at this location is ictal or
     % interictal
     seiz_weight = mean(s(i_0:(i_0+ m_tr_pts)));
     if seiz_weight > thr % if the trial qualifies as ictal
-        if n_ictal <= n_tr_test % if the bin is not full
+        if n_ictal_test <= n_tr_test % if the bin is not full
             % Fill out entries in Inputs
             for m = 1:5
                 for q = 1:n_chan % for each channel
@@ -250,7 +261,7 @@ while ictal_bool == false && inter_bool == false
                 n_ictal_test = n_ictal_test + 1; % update count of ictal trials
             end
         else % if the bin is full
-            ictal_bool = true;
+            ictal_bool_test = true;
         end
     else % if the trial qualifies as interictal
         if n_inter_test <= n_tr_test % if the bin is not full
@@ -281,8 +292,14 @@ while ictal_bool == false && inter_bool == false
                 n_inter_test = n_inter_test + 1; % update count of interictal trials
             end
         else % if the bin is full
-            inter_bool = true;
+            inter_bool_test = true;
         end
+    end
+    n_loops_test = n_loops_test+1;
+    if inter_bool_test == true && ictal_bool_test == true
+        condition_test = true;
+    else 
+        condition_test = false;
     end
 end
 
