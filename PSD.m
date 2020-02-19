@@ -9,25 +9,19 @@
 % was transcribed by hand from a plaintext file. In the .xlsx file, the
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
-% The features calculated by this script are the average spectral
-% frequencies across eight bands per channel (the files used in this 
-% project had 22 selected channels for a total of 176 features).
+% .The script generates training data sets, which are 250 randomly selected
+% ictal and 250 randomly selected interictal. They are structured the 
+% same as the original model. The Training Label array is 
+% 500 x 1. The script also generates 50
+% batches of 5 consecutive ictal and interictal as the testing sets,
+% looking forward to the n of m analysis (postprocessing). So the Test Label Array is 
+% 100 x 1 (not 500 because it corresponds with the post processed
+% results). Instead of creating 2 times the amount of features and then
+% dividing them up randomly in NN_Train into Train and Test, this directly
+% calculates the test and train data sets. 
 
-% In the output matrix, each column of the array indicates a list of
-% features from a single trial. The features are average spectral power
-% across a given frequency band in a given channel. Features are grouped
-% such that all band powers from one channel, in increasing order of
-% frequency, appear before the band powers of the next channel.
-
-% This script is identical to tk_dataprep but does not average the spectral
-% power with respect to time. In this case the targets output is an N-by-1
-% cell array, where N is the number of observations. Each element of the
-% cell is an array describing the evolution over time for each feature.
-
-% This script is identical to tk_deepprep but the method of gathering
-% trials has changed to accommodate datasets where one class vsatly
-% outweighs the other (which a simple neural net cannot accommodate). The
-% old method is still present, only it's been commented out.
+%The specifics for how each of the datapoints are strutured is stated in my
+%big notebook. 
 %% User-Defined Parameters
 
 data_str = 'P8_EEG.mat'; % input filename (data)
@@ -201,6 +195,8 @@ while condition_train == false
             inter_bool_train = true;
         end
     end
+    %This was added so that we could truly get to 250 each of ictal and
+    %interictal
     n_loops_train = n_loops_train+1;
     if inter_bool_train == true && ictal_bool_train == true
         condition_train = true;
@@ -216,8 +212,12 @@ XTrain = [nn_inter_train;nn_ictal_train];
 nn_ictal_test = cell(n_tr_test,1);
 nn_inter_test = cell(n_tr_test,1);
 
-%YTest
+%YTest. m_n_predictions is just the amount of post-processed predictions
+%for each class
 m_n_predictions = n_tr_test/m;
+%First we form and test interictal features and then ictal features, so the
+%test labels take this form so that it matches the inputs (after post
+%processing)
 YTest = [zeros(m_n_predictions,1);ones(m_n_predictions,1)];
 
 %Variables for test loop
@@ -230,7 +230,9 @@ n_ictal_test = 1;
 n_inter_test = 1;
 
 
-%This is the Test Generation
+%This is the Test Generation. Now, this is done separately from the
+%training dataset. It picks up randomly finds batches of 5 consecutive
+%windows - 50 of ictal and 50 or interictal.
 while condition_test == false
     % Grab a random data point to start from
     i_0 = randi(start_max_test);
@@ -240,9 +242,9 @@ while condition_test == false
     if seiz_weight > thr % if the trial qualifies as ictal
         if n_ictal_test <= n_tr_test % if the bin is not full
             % Fill out entries in Inputs
-            for m = 1:5
+            for m = 1:5 %For each trial within the batch of 5
                 for q = 1:n_chan % for each channel
-                    d_temp = data(q,(i_0+(m-1)*tr_pts):(i_0+m*tr_pts)); % find relevant section of data
+                    d_temp = data(q,(i_0+(m-1)*tr_pts):(i_0+m*tr_pts)); % find relevant section of data for that trial
                     sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
                     switch pwr_mode
                         case 'abs'
@@ -300,6 +302,8 @@ while condition_test == false
             inter_bool_test = true;
         end
     end
+    %This was added so that the intention was achieved: truly 50 batches of
+    %ictal and interictal
     n_loops_test = n_loops_test+1;
     if inter_bool_test == true && ictal_bool_test == true
         condition_test = true;
@@ -308,7 +312,7 @@ while condition_test == false
     end
 end
 
-XTest = [nn_inter_test;nn_ictal_test]
+XTest = [nn_inter_test;nn_ictal_test];
 
 save(out_str,'XTrain','XTest','YTrain','YTest','-v7.3');
 
