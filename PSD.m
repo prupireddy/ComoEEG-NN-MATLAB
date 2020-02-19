@@ -30,9 +30,9 @@
 % old method is still present, only it's been commented out.
 %% User-Defined Parameters
 
-data_str = 'P10_EEG.mat'; % input filename (data)
-times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P10_Train_and_Test.mat'; % output filename
+data_str = 'P8_EEG.mat'; % input filename (data)
+times_str = 'P8_Annotations.xlsx'; % input filename (seizure times)
+out_str = 'P8_Train_and_Test.mat'; % output filename
 %out_str = 'P10_Features_New.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
