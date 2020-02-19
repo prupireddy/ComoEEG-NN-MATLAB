@@ -34,6 +34,11 @@ options = trainingOptions('adam', ...
 % Load input variables
 load(in_str);
 
+%Restate n and m
+n = 3;
+m = 5;
+n_m_predictions = length(XTest);
+
 % Trim empty observations from data
 XTrain(cellfun('isempty',XTrain))=[];
 YTrain = YTrain(1:length(XTrain));
@@ -64,7 +69,7 @@ YPred = classify(net,XTest);
 StartIndex = 1;
 
 for k = 1:m_n_predictions
-    predweight = mean(YPred(StartIndex:StartIndex+(m-1),1)); 
+    predweight = mean(YPred(StartIndex:(StartIndex+(m-1)),1)); 
     if predweight >= (n/m)
         YTruePred(k)= 1;
     else
