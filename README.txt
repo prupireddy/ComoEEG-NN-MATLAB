@@ -1,4 +1,5 @@
--Each of the programs have their own readme in the metadata section, are documented, so look at those as well. This is more of a broad explanation.
+-Each of the programs have their own readme in the metadata section, are documented, so look at those as well. There is also more info
+in "Explanation" within n-of-m analysis folder. This is more of a broad explanation.
 
 -There are three scripts (in order of execution):
 
