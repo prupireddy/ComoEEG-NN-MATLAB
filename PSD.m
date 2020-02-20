@@ -113,132 +113,27 @@ sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 
 % Fill arrays
-nn_targets = [zeros(n_tr,1);ones(n_tr,1)];
-start_max = n_pts - tr_pts; % maximum index at which a trial can start
-ictal_bool = false;
-inter_bool = false;
-nn_ictal = cell(n_tr,1);
-nn_inter = cell(n_tr,1);
-n_ictal = 1;
-n_inter = 1;
-n_loop = 0; % number of loops
-
-tic
-while ictal_bool == false && inter_bool == false % while the two categories are not full
-    % throw an error if the code has run too long
-    toki = toc;
-    if toki > tomare
-        error_str = ['With the current variables, the script found ',num2str(n_ictal),' ictal and ',num2str(n_inter),' interictal observations in time.'];
-        disp(error_str);
-        error('Script could not locate enough trials in time. Reduce the number of trials you are looking for or give the program more time to function.');
+for q = 1:n_chan % for each channel
+    d_temp = data(q,1:n_pts); % find relevant section of data
+    sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
+    switch pwr_mode
+        case 'abs'
+            sp_temp = abs(sp_temp);
+        case 'real'
+            sp_temp = real(sp_temp);
+        case 'imag'
+            sp_temp = imag(sp_temp);
+        otherwise
+            error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
     end
-    
-    % Grab a random data point to start from
-    i_0 = randi(start_max);
-    % Check whether the bin starting at this location is ictal or
-    % interictal
-    seiz_weight = mean(s(i_0:(i_0+tr_pts)));
-    if seiz_weight > thr % if the trial qualifies as ictal
-        if n_ictal <= n_tr % if the bin is not full
-            % Fill out entries in Inputs
-            for q = 1:n_chan % for each channel
-                d_temp = data(q,i_0:(i_0+tr_pts)); % find relevant section of data
-                sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
-                switch pwr_mode
-                    case 'abs'
-                        sp_temp = abs(sp_temp);
-                    case 'real'
-                        sp_temp = real(sp_temp);
-                    case 'imag'
-                        sp_temp = imag(sp_temp);
-                    otherwise
-                        error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
-                end
-                for qq = 1:n_bands % for each desired frequency band
-                    f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
-                    f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
-                    sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
-                    i_pwr = (q-1)*n_bands + qq; % current index
-                    m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-                end
-            end
-            nn_ictal{n_ictal} = m_pwr; % update input array
-            n_ictal = n_ictal + 1; % update count of ictal trials
-        else % if the bin is full
-            ictal_bool = true;
-        end
-    else % if the trial qualifies as interictal
-        if n_inter <= n_tr % if the bin is not full
-            % Fill out entries in Inputs
-            for q = 1:n_chan % for each channel
-                d_temp = data(q,i_0:(i_0+tr_pts)); % find relevant section of data
-                sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
-                switch pwr_mode
-                    case 'abs'
-                        sp_temp = abs(sp_temp);
-                    case 'real'
-                        sp_temp = real(sp_temp);
-                    case 'imag'
-                        sp_temp = imag(sp_temp);
-                    otherwise
-                        error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
-                end
-                for qq = 1:n_bands % for each desired frequency band
-                    f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
-                    f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
-                    sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
-                    i_pwr = (q-1)*n_bands + qq; % current index
-                    m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-                end
-            end
-            nn_inter{n_inter} = m_pwr; % update input array
-            n_inter = n_inter + 1; % update count of interictal trials
-        else % if the bin is full
-            inter_bool = true;
-        end
+    for qq = 1:n_bands % for each desired frequency band
+        f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
+        f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
+        sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
+        i_pwr = (q-1)*n_bands + qq; % current index
+        m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
     end
 end
+         
 
-% Merge arrays
-nn_inputs = [nn_inter;nn_ictal];
-
-%{
-% Fill arrays
-T = floor(n_pts / (n_tr+1)); % trial collection period
-for k = 1:n_tr % for each trial
-    i_start = (k-1)*T + 1; % starting index for the current trial
-    i_end = i_start + tr_pts; % ending index
-    
-    % Fill out entry in Targets
-    seiz_weight = mean(s(i_start:i_end)); % see user section for details
-    if seiz_weight > thr % if the trial qualifies as ictal
-        nn_targets(k) = 1; % update Targets
-    end
-    
-    % Fill out entries in Inputs
-    for q = 1:n_chan % for each channel
-        d_temp = data(q,i_start:i_end); % find relevant section of data
-        sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
-        switch pwr_mode
-            case 'abs'
-                sp_temp = abs(sp_temp);
-            case 'real'
-                sp_temp = real(sp_temp);
-            case 'imag'
-                sp_temp = imag(sp_temp);
-            otherwise
-                error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
-        end
-        for qq = 1:n_bands % for each desired frequency band
-            f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
-            f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
-            sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
-            i_pwr = (q-1)*n_bands + qq; % current index
-            m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-        end
-    end
-    nn_inputs{k} = m_pwr; % update input array
-end
-%}
-% Save results
-save(out_str,'nn_inputs','nn_targets','-v7.3');
+%save(out_str,'nn_inputs','nn_targets','-v7.3');
