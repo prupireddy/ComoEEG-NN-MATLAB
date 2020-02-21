@@ -32,7 +32,7 @@
 
 data_str = 'P10_EEG.mat'; % input filename (data)
 times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P10_Features.mat'; % output filename
+out_str = 'P10_PSD.mat'; % output filename
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
@@ -73,9 +73,9 @@ tomare = 60; % time at which while loop forcibly terminates (sec)
 
 % load input data
 load(data_str);
+n_chan = length(chanlocs);
 seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
-n_chan = length(chanlocs);
 tr_pts = tr_len * srate;
 
 % Parse timestamp array into seconds
@@ -110,9 +110,16 @@ sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 n_tr = floor(n_pts/tr_pts);
 PSD_array = cell(n_tr,1);
+State_array = cell(n_tr,1); %corresponds to each PSD
 start = 1;
 stop = tr_pts;
-for t = 1:n_tr   
+for t = 1:n_tr
+    seiz_weight = mean(s(start:stop));
+    if seiz_weight > .5
+        State_array{t}=1;
+    else 
+        State_array{t}=0;
+    end 
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
         sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
@@ -138,4 +145,4 @@ for t = 1:n_tr
     start = start + tr_pts;
     stop = start + (tr_pts - 1);
 end
-%save(out_str,'nn_inputs','nn_targets','-v7.3');
+save(out_str,'PSD_array','State_array','-v7.3');
