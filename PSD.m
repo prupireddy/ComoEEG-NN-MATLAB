@@ -37,10 +37,7 @@ out_str = 'P10_Features.mat'; % output filename
 % directory to the correct location beforehand. Output extension should be
 % .mat.
 
-tr_len = 20; % trial length (s) (recommended: 20)
-n_tr = 500; % number of trials to collect for each state
-% In this version of the code, trials are collected from random points in
-% the dataset until [n_tr] trials of both states are found.
+tr_len = 20; % trial length (s) (recommended: 20).
 
 thr = 0.5; % classification threshold
 % The "seiz_weight" variable is essentially the percentage of data points
@@ -107,33 +104,38 @@ end
 
 % Initialize array of results
 % Obtain sample spectrogram for initialization
-d_temp = data(1,1:(1+tr_pts));
+d_temp = data(1,1:(tr_pts));
 sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
-
-% Fill arrays
-for q = 1:n_chan % for each channel
-    d_temp = data(q,1:n_pts); % find relevant section of data
-    sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
-    switch pwr_mode
-        case 'abs'
-            sp_temp = abs(sp_temp);
-        case 'real'
-            sp_temp = real(sp_temp);
-        case 'imag'
-            sp_temp = imag(sp_temp);
-        otherwise
-            error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
+n_tr = floor(n_pts/tr_pts);
+PSD_array = cell(n_tr,1);
+start = 1;
+stop = tr_pts;
+for t = 1:n_tr   
+    for q = 1:n_chan % for each channel
+        d_temp = data(q,start:stop); % find relevant section of data
+        sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
+        switch pwr_mode
+            case 'abs'
+                sp_temp = abs(sp_temp);
+            case 'real'
+                sp_temp = real(sp_temp);
+            case 'imag'
+                sp_temp = imag(sp_temp);
+            otherwise
+                error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
+        end
+        for qq = 1:n_bands % for each desired frequency band
+            f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
+            f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
+            sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
+            i_pwr = (q-1)*n_bands + qq; % current index
+            m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
+        end
     end
-    for qq = 1:n_bands % for each desired frequency band
-        f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
-        f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
-        sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
-        i_pwr = (q-1)*n_bands + qq; % current index
-        m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-    end
+    PSD_array{t}=m_pwr;
+    start = start + tr_pts;
+    stop = start + (tr_pts - 1);
 end
-         
-
 %save(out_str,'nn_inputs','nn_targets','-v7.3');
