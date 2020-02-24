@@ -2,7 +2,7 @@
 input_str = 'P10_PSD.mat';
 load(input_str);
 
-[~,~,~,~,coeff] = classify(PSD_array,PSD_array,State_array);
+[~,~,~,~,coeff] = classify(PSD_array,PSD_array,State_array);%LDA
 proj=PSD_array*coeff(1,2).linear;
 thresholds=sort(proj,'descend');
 roc=zeros(length(proj),2);
