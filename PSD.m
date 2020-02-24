@@ -145,4 +145,8 @@ for t = 1:n_tr
     start = start + tr_pts;
     stop = start + (tr_pts - 1);
 end
+
+ictal_indices = find(State_array);
+interictal_indices=find(~State_array);
+
 save(out_str,'PSD_array','State_array','-v7.3');
