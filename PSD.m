@@ -110,15 +110,15 @@ sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 n_tr = floor(n_pts/tr_pts);
 PSD_array = cell(n_tr,1);
-State_array = cell(n_tr,1); %corresponds to each PSD
+State_array = zeros(n_tr,1); %corresponds to each PSD
 start = 1;
 stop = tr_pts;
 for t = 1:n_tr
     seiz_weight = mean(s(start:stop));
     if seiz_weight > .5
-        State_array{t}=1;
+        State_array(t)=1;
     else 
-        State_array{t}=0;
+        State_array(t)=0;
     end 
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
@@ -149,4 +149,4 @@ end
 ictal_indices = find(State_array);
 interictal_indices=find(~State_array);
 
-save(out_str,'PSD_array','State_array','-v7.3');
+save(out_str,'PSD_array','State_array','ictal_indices','interictal_indices','-v7.3');
