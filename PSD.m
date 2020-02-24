@@ -107,12 +107,16 @@ end
 d_temp = data(1,1:(tr_pts));
 sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
-m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 n_tr = floor(n_pts/tr_pts);
-PSD_array = cell(n_tr,1);
-State_array = zeros(n_tr,1); %corresponds to each PSD
+State_array = zeros(n_tr,1);%corresponds to each PSD
+
+tic
+
 start = 1;
 stop = tr_pts;
+m_pwr = zeros(n_bands*n_chan,N); % spectral power array
+PSD_array1 = cell(n_tr,1);
+
 for t = 1:n_tr
     seiz_weight = mean(s(start:stop));
     if seiz_weight > .5
@@ -141,12 +145,59 @@ for t = 1:n_tr
             m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
         end
     end
-    PSD_array{t}=m_pwr;
+    PSD_array1{t}=m_pwr;
     start = start + tr_pts;
     stop = start + (tr_pts - 1);
 end
 
+for t = 1:n_tr
+    PSD_array1{t} = transpose(PSD_array1{t});
+    PSD_array1{t} = reshape(PSD_array1{t},1,n_bands*n_chan*N);
+end
+
+PSD_array1 = cell2mat(PSD_array1);
+toc
+
+tic
+
+start = 1;
+stop = tr_pts;
+PSD_array2 = zeros(n_tr,N*n_chan*n_bands);
+
+for t = 1:n_tr
+    seiz_weight = mean(s(start:stop));
+    if seiz_weight > .5
+        State_array(t)=1;
+    else 
+        State_array(t)=0;
+    end 
+    for q = 1:n_chan % for each channel
+        d_temp = data(q,start:stop); % find relevant section of data
+        sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
+        switch pwr_mode
+            case 'abs'
+                sp_temp = abs(sp_temp);
+            case 'real'
+                sp_temp = real(sp_temp);
+            case 'imag'
+                sp_temp = imag(sp_temp);
+            otherwise
+                error('Invalid "pwr_mode" assignment. Please check entry in User Parameters section.');
+        end
+        for qq = 1:n_bands % for each desired frequency band
+            f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
+            f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
+            sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
+            i_pwr = (((n_bands)*(N))*(q-1)) + ((N)*(qq-1))+1;
+            PSD_array2(t,i_pwr:(i_pwr+(N-1))) = mean(sp_crop,1); % avg. power for this window per time step
+        end
+    end
+    start = start + tr_pts;
+    stop = start + (tr_pts - 1);
+end
+toc
+
 ictal_indices = find(State_array);
 interictal_indices=find(~State_array);
 
-save(out_str,'PSD_array','State_array','ictal_indices','interictal_indices','-v7.3');
+%save(out_str,'PSD_array','State_array','ictal_indices','interictal_indices','-v7.3');
