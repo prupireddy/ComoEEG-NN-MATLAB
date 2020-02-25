@@ -18,33 +18,26 @@ proj=PSD_row*coeff(1,2).linear;%Creates 1 dimensional score for likelihood into
 %transformed points - as this will be used to generate thresholds for ROC
 %analysis. 
 
-thresholds=sort(proj,'descend');
-roc=zeros(length(proj),2); %to store fpr and tpr rates
+[thresholds,original]=sort(proj,'descend');
+roc=zeros(length(proj),2); %to store fpr and tpr rates, in order
 for k=1:length(proj)
+    countTP=0;
+    countFP=0;
     currentLabels=zeros(length(proj),1);
     for i=1:length(proj)
         %determine label based on threshold (check each value against threshold
         %and determine if it passes for classification or not
         if proj(i)<=thresholds(k)
             currentLabels(i)=1;
+            if State_array(i) == 1
+                countTP = countTP + 1;
+            elseif State_array(i) == 0
+                countFP = countFP + 1;
+            end
         end
     end
-    %calculate false positve
-    countFP=0;
-    for j =106:length(proj)
-        if currentLabels(j)==1
-            countFP=countFP+1;
-        end
-    end
-    %calculate true positive
-    countTP=0;
-    for j = 1:105
-        if currentLabels(j)==1
-        countTP = countTP+1;
-        end
-    end
-    roc(k,1)=countFP/(length(proj)-105);
-    roc(k,2)=countTP/105;
+    roc(k,1)=countFP/(length(interictal_indices));
+    roc(k,2)=countTP/(length(ictal_indices));
 end
 %% Plot ROC curve
 figure
@@ -53,39 +46,40 @@ xlabel('False Positive Rate')
 ylabel('True Positive Rate')
 title('ROC Curve of All Data Projected After LDA')
 hold on
-plot(linspace(0,1,length(allData)),linspace(0,1,length(allData)))
+plot(linspace(0,1,length(State_array)),linspace(0,1,length(State_array)))
 %% Determine indices of Data that passes the Threshold Set by the LDA 
 %  projection ROC
-bestThreshold=thresholds(16380);
 
-count=0;
-for i = 1:length(proj)
-    if proj(i)>bestThreshold
-        count=count+1;
-    end
-end
-
-postLDAind=zeros(count,1);
-for i = 1:length(proj)
-    if proj(i)<bestThreshold
-        postLDAind(i)=i;
-    end
-end
-postLDAind=find(postLDAind);
-
-%% Create Data and Label Arrays for Observations that passed the threshold
-
-postLdaData=zeros(length(postLDAind),128);
-for i = 1:length(postLDAind)
-    postLdaData(i,:)=allData(postLDAind(i),:);
-end
-
-postLdaLabels=zeros(length(postLDAind),1);
-for i=1:105
-    if postLDAind(i)<=105
-        postLdaLabels(i)=1;
-    end
-end
+% bestThreshold=thresholds(16380);
+% 
+% count=0;
+% for i = 1:length(proj)
+%     if proj(i)>bestThreshold
+%         count=count+1;
+%     end
+% end
+% 
+% postLDAind=zeros(count,1);
+% for i = 1:length(proj)
+%     if proj(i)<bestThreshold
+%         postLDAind(i)=i;
+%     end
+% end
+% postLDAind=find(postLDAind);
+% 
+% %% Create Data and Label Arrays for Observations that passed the threshold
+% 
+% postLdaData=zeros(length(postLDAind),128);
+% for i = 1:length(postLDAind)
+%     postLdaData(i,:)=allData(postLDAind(i),:);
+% end
+% 
+% postLdaLabels=zeros(length(postLDAind),1);
+% for i=1:105
+%     if postLDAind(i)<=105
+%         postLdaLabels(i)=1;
+%     end
+% end
 
 
 
