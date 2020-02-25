@@ -32,7 +32,7 @@
 
 data_str = 'P10_EEG.mat'; % input filename (data)
 times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P10_PSD.mat'; % output filename
+out_str = 'P10_FullPSD.mat'; % output filename
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
