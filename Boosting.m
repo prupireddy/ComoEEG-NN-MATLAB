@@ -1,5 +1,5 @@
 %Import
-input_str = 'P10_PSD.mat';
+input_str = 'P10_FullPSD.mat';
 load(input_str);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
