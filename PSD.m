@@ -11,23 +11,23 @@
 
 % The features calculated by this script are the average spectral
 % frequencies across eight bands per channel (the files used in this 
-% project had 22 selected channels for a total of 176 features).
-
-% In the output matrix, each column of the array indicates a list of
-% features from a single trial. The features are average spectral power
+% project had 22 selected channels for a total of 176 features). This is
+% done for all of the data, not just randomly picked 100 trials. 
+ 
+% In the output matrix, each row corresponds to a single
+%observation, a single trial. The features are average spectral power
 % across a given frequency band in a given channel. Features are grouped
 % such that all band powers from one channel, in increasing order of
-% frequency, appear before the band powers of the next channel.
+% frequency, appear before the band powers of the next channel (from left
+%to right). This format is necessary so that this would become compatible
+%with LDA. The format described is possessed by PSD_row. IT more or less is
+%taking the native format and, proceeding downwards, peeling of the next
+%row and appending it to the top row. Index trackers (which indices are ictal
+%and which indices are interictal) are bundled with the output matrix in
+%the final output. 
 
-% This script is identical to tk_dataprep but does not average the spectral
-% power with respect to time. In this case the targets output is an N-by-1
-% cell array, where N is the number of observations. Each element of the
-% cell is an array describing the evolution over time for each feature.
-
-% This script is identical to tk_deepprep but the method of gathering
-% trials has changed to accommodate datasets where one class vsatly
-% outweighs the other (which a simple neural net cannot accommodate). The
-% old method is still present, only it's been commented out.
+%PSD_cell has the same format as Tyler's
+%original output, but it is not in the final output. 
 %% User-Defined Parameters
 
 data_str = 'P9_EEG.mat'; % input filename (data)
@@ -107,23 +107,31 @@ end
 d_temp = data(1,1:(tr_pts));
 sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
+
+%Here we calculate the number of trials 
 n_tr = floor(n_pts/tr_pts);
-State_array = zeros(n_tr,1);%corresponds to each PSD 1-1
+%Stores PSD - this is in Tyler's original format
+PSD_cell = cell(n_tr,1);
+%This corresponds to each PSD 1-1: it is the label matrix
+State_array = zeros(n_tr,1);
+
+%Initial start and stop for PSD
 start = 1;
 stop = tr_pts;
+%Intermediate PSD matrix that stores the results for one trial and is
+%eventually put into the PSD matrix at the end of the trial
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
-PSD_cell = cell(n_tr,1);
 
 for t = 1:n_tr
-    seiz_weight = mean(s(start:stop));
+    seiz_weight = mean(s(start:stop)); %check if it is ictal or interictal
     if seiz_weight > .5
-        State_array(t)=1;
+        State_array(t)=1;%Put ictal state in state array if the trial = ictal
     else 
-        State_array(t)=0;
+        State_array(t)=0;%Put interictal state in state array if trial = interictal
     end 
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
-        sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this section's spectral profile
+        sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this channel's spectral profile
         switch pwr_mode
             case 'abs'
                 sp_temp = abs(sp_temp);
@@ -138,23 +146,31 @@ for t = 1:n_tr
             f_min = (qq-1)*srate/(2*n_bands)+1; % lower frequency bound (index)
             f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
             sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
-            i_pwr = (q-1)*n_bands + qq; % current index
+            i_pwr = (q-1)*n_bands + qq; % current index (row)
             m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
         end
     end
-    PSD_cell{t}=m_pwr;
+    PSD_cell{t}=m_pwr;%as stated before, the intermediate PSD is put into final PSD after trial
+    %Reset Trial Start and Stop points
     start = start + tr_pts;
     stop = start + (tr_pts - 1);
 end
 
-PSD_row = PSD_cell;
-for t = 1:n_tr
-    PSD_row{t} = transpose(PSD_row{t});
-    PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan*N);
+PSD_row = PSD_cell; %Initialize the final row-per-trial matrix
+%We transform the n trials x 1 cell matrix by iterating through each entry
+%and reshaping it into a row matrix. Before we call the reshape function,
+%we transpose the matrix because reshape operates, by default, going column
+%wise, but we need row wise. Then, we transform the cell matrix into a row
+%matrix.
+for t = 1:n_tr %iterate through each observation
+    PSD_row{t} = transpose(PSD_row{t}); %transpose it to prepare for column-wise reshape
+    PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan*N);%reshape
 end
-PSD_row = cell2mat(PSD_row);
+PSD_row = cell2mat(PSD_row);%turn the cell matrix into a normal matlab array for the LDA
 
-ictal_indices = find(State_array);
-interictal_indices=find(~State_array);
+%Find which of the observations are ictal (1), which are interictal (0)
+ictal_indices = find(State_array);%Finds the non-zero entries in State_array: 1s and thus ictal indices
+interictal_indices=find(~State_array);%Finds the zero entries in State_array, and thus the interical indices
 
+%Save as output the row-per-observation matrix and the index trackers
 save(out_str,'PSD_row','State_array','ictal_indices','interictal_indices','-v7.3');
