@@ -1,6 +1,8 @@
 %Import
-input_str = 'P10_FullPSD.mat';
+input_str = 'P9_FullPSD.mat';
 load(input_str);
+
+PSD_row = PSD_row(:,1:500)
 
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
@@ -9,11 +11,8 @@ proj=PSD_row*coeff(1,2).linear;%Creates 1 dimensional score for likelihood into
 %class 2 (ictal). Basically, when you add on the constant term for the boundary
 %line (the linear term is the slope), if your final
 %result is positive, it is class 1 (interical). If it negative, you get class 2 
-%(ictal). You are 
-%more or less taking the dot product and seeing on which side the result falls
-%You can also think of it a regression. In this case, we have not added on
-%the constant term, so if something is below X, it is ictal. Above,
-%interical. The reason we don't really care about the true value when added
+%(ictal). This is matrix multipication - you are projecting the data on the
+%one dimensional line The reason we don't really care about the true value when added
 %by X is because we care about the relative positions of the LDA
 %transformed points - as this will be used to generate thresholds for ROC
 %analysis. 
