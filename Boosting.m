@@ -2,7 +2,14 @@
 input_str = 'P9_FullPSD.mat';
 load(input_str);
 
-PSD_row = PSD_row(:,1:500)
+%PCA
+n_pcomponents = length(ictal_indices)+length(interictal_indices)-10;
+PSD_row = PSD_row - mean(PSD_row);
+coeff1=pca(PSD_row)
+PSD_row = PSD_row*coeff1(:,1:n_pcomponents);
+
+%Ghetto PCA
+%PSD_row = PSD_row(:,2000:2500);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
