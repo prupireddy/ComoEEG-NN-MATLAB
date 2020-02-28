@@ -30,9 +30,9 @@
 %original output, but it is not in the final output. 
 %% User-Defined Parameters
 
-data_str = 'P9_EEG.mat'; % input filename (data)
-times_str = 'P9_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P9_FullPSD.mat'; % output filename
+data_str = 'P6_EEG.mat'; % input filename (data)
+times_str = 'P6_Annotations.xlsx'; % input filename (seizure times)
+out_str = 'P6_FullPSD.mat'; % output filename
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
@@ -120,7 +120,8 @@ start = 1;
 stop = tr_pts;
 %Intermediate PSD matrix that stores the results for one trial and is
 %eventually put into the PSD matrix at the end of the trial
-m_pwr = zeros(n_bands*n_chan,N); % spectral power array
+%m_pwr = zeros(n_bands*n_chan,N); % spectral power array
+m_pwr = zeros(n_bands*n_chan,1);
 
 for t = 1:n_tr
     seiz_weight = mean(s(start:stop)); %check if it is ictal or interictal
@@ -147,7 +148,8 @@ for t = 1:n_tr
             f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
             sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
             i_pwr = (q-1)*n_bands + qq; % current index (row)
-            m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
+            %m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
+            m_pwr(i_pwr)=mean(mean(sp_crop,1));
         end
     end
     PSD_cell{t}=m_pwr;%as stated before, the intermediate PSD is put into final PSD after trial
@@ -164,7 +166,8 @@ PSD_row = PSD_cell; %Initialize the final row-per-trial matrix
 %matrix.
 for t = 1:n_tr %iterate through each observation
     PSD_row{t} = transpose(PSD_row{t}); %transpose it to prepare for column-wise reshape
-    PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan*N);%reshape
+    %PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan*N);%reshape
+    PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan);
 end
 PSD_row = cell2mat(PSD_row);%turn the cell matrix into a normal matlab array for the LDA
 
