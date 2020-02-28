@@ -14,103 +14,50 @@
 %% Program
 
 %Import
-input_str = 'P10_FullPSD.mat';
+input_str = 'P4_FullPSD.mat';
 load(input_str);
 
 n_ictal = length(ictal_indices);
 n_interictal = length(interictal_indices);
 n_total = n_ictal+n_interictal;
+prior = [n_ictal/n_total, n_interictal/n_total];
+
+cv_type = 'KFold';
+n_folds = 5;
+cvIndices = crossvalind(cv_type,n_total,n_folds);
+ConfusionMatrix = zeros(n_folds,5);
 
 %PCA
-% n_pcomponents = n_total-10; %Calculate the number of principle components
+% n_pcomponents = floor(n_total*((n_folds-1)/n_folds))-10; %Calculate the number of principle components
 % PSD_row = PSD_row - mean(PSD_row); %Substract off the mean 
 % pcacomponents=pca(PSD_row); %pca components stores all of the pca components, in order of eigienvalue magnitude  
 % PSD_row = PSD_row*pcacomponents(:,1:n_pcomponents); %Projects data onto PCA space defined by the the number of components from the first line in this section
 
-
-%Commented out prior vector - to be used with commented out prior vector
-%LDA code below
-%prior = [n_ictal/n_total, n_interictal/n_total];
-%prior = char(prior);
-Predicted_labels = zeros(n_total,1);
-[~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);
-for k = 1:n_total
-    if (PSD_row*coeff(1,2).linear + coeff(1,2).const) > 0
-        Predicted_labels(k) = 0;
-    elseif (PSD_row*coeff(1,2).linear + coeff(1,2).const) < 0
-        Predicted_labels(k) = 1;
-    end
+for i = 1:n_folds
+    test = (cvIndices == i); 
+    train = ~test;
+    PSD_row_test = PSD_row(test,:);
+    PSD_row_train = PSD_row(train,:);
+    State_array_train = State_array(train,:);
+    [class,err,POSTERIOR,~,coeff] = classify(PSD_row_test,PSD_row_train,State_array_train, 'linear', prior);
+    State_array_test = State_array(test,:);
+    n_ictal_test = nnz(State_array_test);
+    n_interictal_test = nnz(~State_array_test); 
+    %Calculating accuracy 
+    PositiveClassificationIndices = find(class);
+    NegativeClassificationIndices = find(~class);
+    TP = nnz(State_array_test(PositiveClassificationIndices));
+    FP = nnz(~State_array_test(PositiveClassificationIndices));
+    FN = nnz(State_array_test(NegativeClassificationIndices));
+    TN = nnz(~State_array_test(NegativeClassificationIndices));
+    TPR = TP/n_ictal_test;
+    FPR = FP/n_interictal_test;
+    TNR = TN/n_interictal_test;
+    FNR = FN/n_ictal_test;
+    Accuracy = (TP+TN)/(TP+TN+FN+FP);
+    ConfusionMatrix(i,:) = [TPR,FPR,TNR,FNR,Accuracy];
 end 
-    
-% 
-% cv_type = 'KFold';
-% n_folds = 5;
-
-% cvIndices = crossvalind(cv_type,n_total,n_folds);
-% for i = 1:n_folds
-%     test = (cvIndices == i); 
-%     train = ~test;
-%     PSD_row_test = PSD_row(test,:);
-%     PSD_row_train = PSD_row(train,:);
-%     State_array_train = State_array(train,:);
-%     %First is without prior vector. Second is with prior vector. 
-%     [~,~,~,~,coeff] = classify(PSD_row_test,PSD_row_train,State_array_train);%LDA%First entry is test
-%     %Second is train. Third is labels for training set. 
-%     %[~,~,~,~,coeff] = classify(PSD_row_test,PSD_row_train,State_array_train,'linear',prior);%LDA%First entry is test
-%     %Second is train. Third is labels for training set. This allows you to put in the prior vector. 
-%     proj=PSD_row_train*coeff(1,2).linear;%Creates 1 dimensional score for likelihood into
-%     %class 2 (ictal). Normally, when you add on the constant term for the boundary
-%     %line (the linear term is the slope), if your final
-%     %result is positive, it is class 1 (interical). If it negative, you get class 2 
-%     %(ictal). This is matrix multipication - you are projecting the data on the
-%     %one dimensional line defined by coeff. The reason we don't really care about the true value when added
-%     %by X is because we care about the relative positions of the LDA
-%     %transformed points - as this will be used to generate thresholds for ROC
-%     %analysis. 
-% 
-%     %This sections sorts the LDA results in descending fashion. The program will then
-%     %iterate over each of the LDA scores, in descending, using each as a
-%     %threshold. For each threshold, it will iterate over each point again,
-%     %wherein the points under the threshold are ictal and the points over are interictal.  Whenever it encounters 
-%     %a positive point, it counts it as either a false positive or false
-%     %negative. Once it goes through comparing all points, it calculates false
-%     %positive and true positive rates. Once you go through all of the
-%     %thresholds, you calculate an ROC curve based on the false positive and
-%     %true positive rates at each threshold. 
-% 
-%     [thresholds,original]=sort(proj,'descend'); %sort projections in a descending fashion to make them thresholds
-%     ematrix=zeros(length(proj),5); %to store fpr, tpr, fnr, tnr rates, in order, then F2
-%     for k=1:length(proj) %iterating over each of the thresholds
-%         countTP=0;
-%         countFP=0;
-%         countFN=0;
-%         countFP=0;
-%         currentLabels=zeros(length(proj),1);
-%         for i=1:length(proj) %over all points for that threshold 
-%             if proj(i)>=thresholds(k)%if the point passes as interictal
-%                 currentLabels(i)=0;%set label as ictal - default is 0 - interictal
-%                 if State_array(i) == 1 %if true state is positive, add 1 to false negative count
-%                     countFN = countFN + 1;
-%                 elseif State_array(i) == 0 %if true state is negative, add 1 to true negative count
-%                     countTN = countTN + 1;
-%                 end
-%             elseif proj(i)<=thresholds(k)%if the point passes as ictal
-%                 currentLabels(i)=1;%set label as ictal - default is 0 - interictal
-%                 if State_array(i) == 1 %if true state is positive, add 1 to true count
-%                     countTP = countTP + 1;
-%                 elseif State_array(i) == 0 %if true state is negative, add 1 to false positive count
-%                     countFP = countFP + 1;
-%                 end
-%             end
-%         end
-%         ematrix(k,1)=countFP/n_interictal; %Calculate false positive rate after going through all points
-%         ematrix(k,2)=countTP/n_ictal; % ditto for true positive rate
-%         ematrix(k,3)=countFN/n_ictal;
-%         ematrix(k,4)=countTN/n_interictal;
-%     end
-% end
-
-
+ConfusionMatrixMean = mean(ConfusionMatrix);
 %% Plot ROC curve
 % figure
 % plot(ematrix(:,1),ematrix(:,2)) %plot roc curve with x values as false positives and y values as true positives
