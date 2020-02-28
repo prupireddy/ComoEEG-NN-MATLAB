@@ -14,7 +14,7 @@
 %% Program
 
 %Import
-input_str = 'P4_FullPSD.mat';
+input_str = 'P10_FullPSD.mat';
 load(input_str);
 
 n_ictal = length(ictal_indices);
@@ -58,47 +58,6 @@ for i = 1:n_folds
     ConfusionMatrix(i,:) = [TPR,FPR,TNR,FNR,Accuracy];
 end 
 ConfusionMatrixMean = mean(ConfusionMatrix);
-%% Plot ROC curve
-% figure
-% plot(ematrix(:,1),ematrix(:,2)) %plot roc curve with x values as false positives and y values as true positives
-% xlabel('False Positive Rate')
-% ylabel('True Positive Rate')
-% title('ROC Curve of All Data Projected After LDA')
-% hold on
-% plot(linspace(0,1,length(State_array)),linspace(0,1,length(State_array))) %plot naive classifier
-%% Determine indices of Data that passes the Threshold Set by the LDA 
-%  projection ROC
-
-% bestThreshold=thresholds(16380);
-% 
-% count=0;
-% for i = 1:length(proj)
-%     if proj(i)>bestThreshold
-%         count=count+1;
-%     end
-% end
-% 
-% postLDAind=zeros(count,1);
-% for i = 1:length(proj)
-%     if proj(i)<bestThreshold
-%         postLDAind(i)=i;
-%     end
-% end
-% postLDAind=find(postLDAind);
-% 
-% %% Create Data and Label Arrays for Observations that passed the threshold
-% 
-% postLdaData=zeros(length(postLDAind),128);
-% for i = 1:length(postLDAind)
-%     postLdaData(i,:)=allData(postLDAind(i),:);
-% end
-% 
-% postLdaLabels=zeros(length(postLDAind),1);
-% for i=1:105
-%     if postLDAind(i)<=105
-%         postLdaLabels(i)=1;
-%     end
-% end
 
 
 
