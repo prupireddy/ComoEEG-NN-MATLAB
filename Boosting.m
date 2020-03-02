@@ -14,7 +14,7 @@
 %% Program
 
 %Import
-input_str = 'P10_FullPSD.mat';
+input_str = 'P6_FullPSD_176.mat';
 load(input_str);
 
 n_ictal = length(ictal_indices);
@@ -39,7 +39,7 @@ for i = 1:n_folds
     PSD_row_test = PSD_row(test,:);
     PSD_row_train = PSD_row(train,:);
     State_array_train = State_array(train,:);
-    [class,err,POSTERIOR,~,coeff] = classify(PSD_row_test,PSD_row_train,State_array_train, 'linear', prior);
+    [class,err,POSTERIOR,~,coeff] = classify(PSD_row_test,PSD_row_train,State_array_train, 'linear');
     State_array_test = State_array(test,:);
     n_ictal_test = nnz(State_array_test);
     n_interictal_test = nnz(~State_array_test); 
