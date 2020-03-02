@@ -37,7 +37,7 @@ out_str = 'P6_FullPSD_176.mat'; % output filename
 % directory to the correct location beforehand. Output extension should be
 % .mat.
 
-tr_len = 10; % trial length (s) (recommended: 20).
+tr_len = 20; % trial length (s) (recommended: 20).
 
 thr = 0.5; % classification threshold
 % The "seiz_weight" variable is essentially the percentage of data points
