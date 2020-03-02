@@ -32,12 +32,12 @@
 
 data_str = 'P6_EEG.mat'; % input filename (data)
 times_str = 'P6_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P6_FullPSD.mat'; % output filename
+out_str = 'P6_FullPSD_176.mat'; % output filename
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
 
-tr_len = 20; % trial length (s) (recommended: 20).
+tr_len = 10; % trial length (s) (recommended: 20).
 
 thr = 0.5; % classification threshold
 % The "seiz_weight" variable is essentially the percentage of data points
