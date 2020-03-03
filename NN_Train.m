@@ -10,9 +10,9 @@
 % function properly.
 %% User-Defined Parameters
 
-in_str = 'P10_Features.mat'; % input filename
-mat_str = 'P10_NN.mat'; % output filename (.mat)
-onnx_str = 'P10_NN.onnx'; % output filename (ONNX network)
+in_str = 'P8_Features.mat'; % input filename
+mat_str = 'P8_NN.mat'; % output filename (.mat)
+onnx_str = 'P8_NN.onnx'; % output filename (ONNX network)
 
 train_rat = 0.5; % proportion of inputs to go into the training set
 
@@ -95,8 +95,6 @@ YTest = YTest(1:length(XTest));
 % Categorize labels and display assignment results.
 YTrain = categorical(YTrain);
 YTest = categorical(YTest);
-tracker_str = ['The training set contains ',num2str(tracker(1,1)),' ictal and ',num2str(tracker(1,2)),' interictal observations.',newline,'The test set contains ',num2str(tracker(2,1)),' ictal and ',num2str(tracker(2,2)),' incterictal observations.'];
-disp(tracker_str);
 
 % Define LSTM Network Architecture
 inputSize = length(XTrain{1}); % input size (number of features)
@@ -119,6 +117,28 @@ net = trainNetwork(XTrain,YTrain,layers,options);
 % Test network accuracy using test set
 YPred = classify(net,XTest);
 acc = sum(YPred == YTest)./numel(YTest)
+
+%Convert Predictions back into 0s and 1s for quantitative analysis
+YPred = double(YPred);
+YPred = YPred - 1;
+YTest = double(YTest);
+YTest = YTest - 1;
+
+%Confusion Matrix Calculations
+n_ictal_test = nnz(YTest);
+n_interictal_test = nnz(~YTest); 
+PositiveClassificationIndices = find(YPred);
+NegativeClassificationIndices = find(~YPred);
+TP = nnz(YTest(PositiveClassificationIndices));
+FP = nnz(~YTest(PositiveClassificationIndices));
+FN = nnz(YTest(NegativeClassificationIndices));
+TN = nnz(~YTest(NegativeClassificationIndices));
+TPR = TP/n_ictal_test;
+FPR = FP/n_interictal_test;
+TNR = TN/n_interictal_test;
+FNR = FN/n_ictal_test;
+Accuracy = (TP+TN)/(TP+TN+FN+FP);
+ConfusionMatrix = [TPR,FPR,TNR,FNR,Accuracy];
 
 % Export files
 save(mat_str,'net','acc');
