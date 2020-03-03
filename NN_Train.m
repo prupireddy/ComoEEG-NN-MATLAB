@@ -66,7 +66,7 @@ YPred = classify(net,XTest);
 
 %Convert Predictions back into 0s and 1s for quantitative analysis
 YPred = double(YPred);
-YPred = YPred - ones(length(YPred));
+YPred = YPred - 1;
 
 %Tracker for where we are in the n/m analysis 
 StartIndex = 1;
