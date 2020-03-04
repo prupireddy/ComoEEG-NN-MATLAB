@@ -13,7 +13,7 @@ Input: P(insert patient number)_Annotations.xslx - Contains Seizure On/Off Set T
 + P(insert patient number)_EEG.mat (O from previous) - MATLAB EEG
 Output: P(insert patient number)_FullPSD_176 - Features
 
-3. Boosting: Classifies the features using a Hyperparameter Optimized (Bayesian Optimization), Parallel Processed LDA
+3. Boosting: Classifies the features using a Hyperparameter Optimized (Bayesian Optimization), Parallel Processed, Non-Cost-Sensitive LDA
 Input: P(Insert patient number)_FullPSD_176 - Features
 Output: LDA Classifier 
 
