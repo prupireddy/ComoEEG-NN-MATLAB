@@ -10,9 +10,14 @@
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
 % The features calculated by this script are the average spectral
-% frequencies across eight bands per channel (the files used in this 
-% project had 22 selected channels for a total of 176 features). This is
+% frequencies across eight bands per channel. This is
 % done for all of the data, not just randomly picked 100 trials. 
+
+%Tyler's original model uses actually 2640 features as it is 22 channels x 
+%8 frequency bands x 15 time steps in 20 s window. This method has been
+%commented out. Instead, the method used here is averaged over all 15 time
+%steps, so it is only 176 features. This was done to avoid accuracy-reducing
+%PCA in LDA (explained furhter in report) 
  
 % In the output matrix, each row corresponds to a single
 %observation, a single trial. The features are average spectral power
@@ -149,7 +154,7 @@ for t = 1:n_tr
             sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
             i_pwr = (q-1)*n_bands + qq; % current index (row)
             %m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-            m_pwr(i_pwr)=mean(mean(sp_crop,1));
+            m_pwr(i_pwr)=mean(mean(sp_crop,1)); %avg oiwer over all time steps in the window
         end
     end
     PSD_cell{t}=m_pwr;%as stated before, the intermediate PSD is put into final PSD after trial
@@ -167,7 +172,7 @@ PSD_row = PSD_cell; %Initialize the final row-per-trial matrix
 for t = 1:n_tr %iterate through each observation
     PSD_row{t} = transpose(PSD_row{t}); %transpose it to prepare for column-wise reshape
     %PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan*N);%reshape
-    PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan);
+    PSD_row{t} = reshape(PSD_row{t},1,n_bands*n_chan); %reshape for the new matrix with 176 features 
 end
 PSD_row = cell2mat(PSD_row);%turn the cell matrix into a normal matlab array for the LDA
 
