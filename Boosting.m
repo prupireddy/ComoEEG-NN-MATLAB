@@ -12,9 +12,9 @@
 %In the future, this should also generate the x highest power interictals, where
 %x is the number of ictals. 
 %% Program
-
+tic
 %Import
-input_str = 'P6_FullPSD_176.mat';
+input_str = 'P5_FullPSD_176.mat';
 load(input_str);
 
 n_ictal = length(ictal_indices);
@@ -58,7 +58,7 @@ for i = 1:n_folds
     ConfusionMatrix(i,:) = [TPR,FPR,TNR,FNR,Accuracy];
 end 
 ConfusionMatrixMean = mean(ConfusionMatrix);
-
+toc
 
 
 
