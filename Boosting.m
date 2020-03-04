@@ -1,28 +1,25 @@
 %% Explanation
-%This program takes in all of the PSD data as as input. It then computes
-%LDA scores for all of the data. Then, it calculates false positive and
-%true positive rates for all of the data so that the ROC curves could be
-%computed. The final output is an ROC curve.
-
-%Note: If the number of observations is less than the number of
-%features, You will get an error somewhere along the lines of - the matrix needs 
-%to be positive definite. You will need to perform PCA by uncommenting the
-%PCA code. 
-
-%In the future, this should also generate the x highest power interictals, where
-%x is the number of ictals. 
+%This program takes in all of the 176 feature PSD data as an input. It then
+%sets up trains a hyperparameter optimized (Bayesian optimized and K-Fold 
+%validated), Parallel Processing-sped up LDA. 
 %% Program
-tic
+tic %start timer
 %Import
 input_str = 'P10_FullPSD_176.mat';
 load(input_str);
 
-LDA = fitcdiscr(PSD_row,State_array, 'OptimizeHyperparameters', 'auto',...
+%So the arguments in LDA occur in pairs. The first is the name, the second
+%is the value. The first pair is input output. The second pair tells us to
+%optimize the auto hyperparameters - delta and gamma - the third pair tells us how to
+%optimize them with subpairs in struct: using Bayesian optimization, 5-fold validation
+%and parallel processing, in that order.
+LDA = fitcdiscr(PSD_row,State_array, 'OptimizeHyperparameters', 'auto',... 
     'HyperparameterOptimizationOptions',...
     struct('AcquisitionFunctionName','expected-improvement-plus','KFold',5,...
     'UseParallel',true));
-disp(1-loss(LDA,PSD_row,State_array));
-toc
+
+disp(1-loss(LDA,PSD_row,State_array)); %validation accuracy
+toc %end timer
 
 
 
