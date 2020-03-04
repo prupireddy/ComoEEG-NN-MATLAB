@@ -14,12 +14,14 @@
 %% Program
 tic
 %Import
-input_str = 'P6_FullPSD_176.mat';
+input_str = 'P10_FullPSD_176.mat';
 load(input_str);
 
 LDA = fitcdiscr(PSD_row,State_array, 'OptimizeHyperparameters', 'auto',...
     'HyperparameterOptimizationOptions',...
-    struct('AcquisitionFunctionName','expected-improvement-plus','KFold',5));
+    struct('AcquisitionFunctionName','expected-improvement-plus','KFold',5,...
+    'UseParallel',true));
+disp(1-loss(LDA,PSD_row,State_array));
 toc
 
 
