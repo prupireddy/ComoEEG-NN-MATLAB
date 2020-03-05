@@ -24,21 +24,20 @@ load(input_str);
 proj=PSD_row*coeff(1,2).linear;
 
 %Isolation of ictals and high power interictals
-n_ictal = length(ictal_indices);
-n_high_power_interictals = n_ictal;
-proj = proj(interictal_indices);
-[sortedproj,origIndices] = sort(proj,'descend');
+n_ictals = length(ictal_indices);
+n_high_power_interictals = n_ictals;
+[sortedproj,origIndices] = sort(proj);
 postextracted_high_power_indices = origIndices(1:n_high_power_interictals);
 high_power_indices = interictal_indices(postextracted_high_power_indices);
-high_power_interictals = PSD_row(high_power_indices);
-ictals = PSD_row(ictal_indices);
+high_power_interictals = PSD_row(high_power_indices,:);
+ictals = PSD_row(ictal_indices,:);
 boostedPSD_row = zeros((n_ictals+n_high_power_interictals),176);
 boostedPSD_row((1:n_ictals),:)=ictals;
 boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_power_interictals;
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
-boostedStateArray(1:n_ictal) = 1;
+boostedStateArray(1:n_ictals) = 1;
 
-save(out_str,'boostedData','boostedStateArray','n_ictals','n_high_power_interictals','-v7.3');
+save(out_str,'boostedPSD_row','boostedStateArray','n_ictals','n_high_power_interictals','-v7.3');
 
 
 
