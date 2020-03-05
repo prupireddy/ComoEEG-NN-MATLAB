@@ -26,8 +26,9 @@ proj=PSD_row*coeff(1,2).linear;
 %Isolation of ictals and high power interictals
 n_ictals = length(ictal_indices);
 n_high_power_interictals = n_ictals;
-[sortedproj,origIndices] = sort(proj);
-postextracted_high_power_indices = origIndices(1:n_high_power_interictals);
+proj_no_ictal = proj(interictal_indices);
+[sortedproj,unsortedIndices] = sort(proj_no_ictal);
+postextracted_high_power_indices = unsortedIndices(1:n_high_power_interictals);
 high_power_indices = interictal_indices(postextracted_high_power_indices);
 high_power_interictals = PSD_row(high_power_indices,:);
 ictals = PSD_row(ictal_indices,:);
