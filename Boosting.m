@@ -14,100 +14,32 @@
 %% Program
 
 %Import
-%input_str = 'P9_FullPSD.mat';
 input_str = 'P10_FullPSD_176.mat';
+out_str = 'P10_BoostedPSD_176.mat';
 load(input_str);
-
-%PCA
-% n_pcomponents = length(ictal_indices)+length(interictal_indices)-10; %Calculate the number of principle components
-% PSD_row = PSD_row - mean(PSD_row); %Substract off the mean 
-% pcacomponents=pca(PSD_row); %pca components stores all of the pca components, in order of eigienvalue magnitude  
-% PSD_row = PSD_row*pcacomponents(:,1:n_pcomponents); %Projects data onto PCA space defined by the the number of components from the first line in this section
 
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
 %Second is test%In this case, they are the same for simplicity
-proj=PSD_row*coeff(1,2).linear;%Creates 1 dimensional score for likelihood into
-%class 2 (ictal). Normally, when you add on the constant term for the boundary
-%line (the linear term is the slope), if your final
-%result is positive, it is class 1 (interical). If it negative, you get class 2 
-%(ictal). This is matrix multipication - you are projecting the data on the
-%one dimensional line defined by coeff. The reason we don't really care about the true value when added
-%by X is because we care about the relative positions of the LDA
-%transformed points - as this will be used to generate thresholds for ROC
-%analysis. 
+proj=PSD_row*coeff(1,2).linear;
 
-%This sections sorts the LDA results in descending fashion. The program will then
-%iterate over each of the LDA scores, in descending, using each as a
-%threshold. For each threshold, it will iterate over each point again,
-%wherein the points under the threshold are ictal and the points over are interictal.  Whenever it encounters 
-%a positive point, it counts it as either a false positive or false
-%negative. Once it goes through comparing all points, it calculates false
-%positive and true positive rates. Once you go through all of the
-%thresholds, you calculate an ROC curve based on the false positive and
-%true positive rates at each threshold. 
+%Isolation of ictals and high power interictals
+n_ictal = length(ictal_indices);
+n_high_power_interictals = n_ictal;
+proj = proj(interictal_indices);
+[sortedproj,origIndices] = sort(proj,'descend');
+postextracted_high_power_indices = origIndices(1:n_high_power_interictals);
+high_power_indices = interictal_indices(postextracted_high_power_indices);
+high_power_interictals = PSD_row(high_power_indices);
+ictals = PSD_row(ictal_indices);
+boostedPSD_row = zeros((n_ictals+n_high_power_interictals),176);
+boostedPSD_row((1:n_ictals),:)=ictals;
+boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_power_interictals;
+boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
+boostedStateArray(1:n_ictal) = 1;
 
-[thresholds,original]=sort(proj,'descend'); %sort projections in a descending fashion to make them thresholds
-roc=zeros(length(proj),2); %to store fpr and tpr rates, in order
-for k=1:length(proj) %iterating over each of the thresholds
-    countTP=0;
-    countFP=0;
-    currentLabels=zeros(length(proj),1);
-    for i=1:length(proj) %over all points for that threshold 
-        if proj(i)<=thresholds(k)%if the point passes as ictal
-            currentLabels(i)=1;%set label as ictal - default is 0 - interictal
-            if State_array(i) == 1 %if true state is positive, add 1 to true count
-                countTP = countTP + 1;
-            elseif State_array(i) == 0 %if true state is negative, add 1 to false positive count
-                countFP = countFP + 1;
-            end
-        end
-    end
-    roc(k,1)=countFP/(length(interictal_indices)); %Calculate false positive rate after going through all points
-    roc(k,2)=countTP/(length(ictal_indices)); % ditto for true positive rate
-end
-% Plot ROC curve
-figure
-plot(roc(:,1),roc(:,2)) %plot roc curve with x values as false positives and y values as true positives
-xlabel('False Positive Rate')
-ylabel('True Positive Rate')
-title('ROC Curve of All Data Projected After LDA')
-hold on
-plot(linspace(0,1,length(State_array)),linspace(0,1,length(State_array))) %plot naive classifier
+save(out_str,'boostedData','boostedStateArray','n_ictals','n_high_power_interictals','-v7.3');
 
-% % Determine indices of Data that passes the Threshold Set by the LDA 
-%  projection ROC
-% 
-% bestThreshold=thresholds(16380);
-% 
-% count=0;
-% for i = 1:length(proj)
-%     if proj(i)>bestThreshold
-%         count=count+1;
-%     end
-% end
-% 
-% postLDAind=zeros(count,1);
-% for i = 1:length(proj)
-%     if proj(i)<bestThreshold
-%         postLDAind(i)=i;
-%     end
-% end
-% postLDAind=find(postLDAind);
-% 
-% %% Create Data and Label Arrays for Observations that passed the threshold
-% 
-% postLdaData=zeros(length(postLDAind),128);
-% for i = 1:length(postLDAind)
-%     postLdaData(i,:)=allData(postLDAind(i),:);
-% end
-% 
-% postLdaLabels=zeros(length(postLDAind),1);
-% for i=1:105
-%     if postLDAind(i)<=105
-%         postLdaLabels(i)=1;
-%     end
-% end
 
 
 
