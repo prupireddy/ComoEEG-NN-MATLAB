@@ -120,6 +120,26 @@ net = trainNetwork(XTrain,YTrain,layers,options);
 YPred = classify(net,XTest);
 acc = sum(YPred == YTest)./numel(YTest)
 
+YPred = double(YPred);
+YPred = YPred - 1;
+YTest = double(YTest);
+YTest = YTest - 1;
+
+n_ictal_test = nnz(YTest);
+n_interictal_test = nnz(~YTest); 
+PositiveClassificationIndices = find(YPred);
+NegativeClassificationIndices = find(~YPred);
+TP = nnz(YTest(PositiveClassificationIndices));
+FP = nnz(~YTest(PositiveClassificationIndices));
+FN = nnz(YTest(NegativeClassificationIndices));
+TN = nnz(~YTest(NegativeClassificationIndices));
+TPR = TP/n_ictal_test;
+FPR = FP/n_interictal_test;
+TNR = TN/n_interictal_test;
+FNR = FN/n_ictal_test;
+Accuracy = (TP+TN)/(TP+TN+FN+FP);
+ConfusionMatrix = [TPR,FPR,TNR,FNR,Accuracy];
+
 % Export files
 save(mat_str,'net','acc');
 exportONNXNetwork(net,onnx_str);
