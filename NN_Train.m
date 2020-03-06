@@ -8,31 +8,14 @@
 
 % MATLAB's Deep Learning Toolbox must be installed before this script will
 % function properly.
-%% User-Defined Parameters
+%% Inputs and Outputs
 
 in_str = 'P10_Features.mat'; % input filename
 mat_str = 'P10_NN.mat'; % output filename (.mat)
 onnx_str = 'P10_NN.onnx'; % output filename (ONNX network)
-
-train_rat = 0.5; % proportion of inputs to go into the training set
-
-numHiddenUnits = 200; % number of hidden units in the LSTM layer
-% This variable controls the complexity of the neural network, I think.
-% Higher numbers mean more neurons, which might increase accuracy but
-% definitely increase processing time.
-
-options = trainingOptions('adam', ...
-    'ExecutionEnvironment','auto', ...
-    'MaxEpochs',400, ...
-    'GradientThreshold',1, ...
-    'Shuffle','every-epoch', ...
-    'ValidationPatience',5, ...
-    'Plots','training-progress');
+load(in_str);
 
 %% Script
-
-% Load input variables
-load(in_str);
 
 %{
 % Transpose target array (n.b. future updates to tk_dataprep may invalidate
@@ -57,6 +40,7 @@ n_train = 1; % number of training observations recorded (offset 1 for index reas
 n_test = 1;
 
 tracker = zeros(2,2); % tracks ictal/interictal observations in each set
+train_rat = 0.5; % proportion of inputs to go into the training set
 
 for k = 1:n_obs % for each observation
     Q = rand; % generate random number
@@ -86,6 +70,10 @@ for k = 1:n_obs % for each observation
         end
     end
 end
+
+tracker_str = ['The training set contains ',num2str(tracker(1,1)),' ictal and ',num2str(tracker(1,2)),' interictal observations.',newline,'The test set contains ',num2str(tracker(2,1)),' ictal and ',num2str(tracker(2,2)),' incterictal observations.'];
+disp(tracker_str);
+
 % Trim empty observations from data
 XTrain(cellfun('isempty',XTrain))=[];
 YTrain = YTrain(1:length(XTrain));
@@ -95,8 +83,6 @@ YTest = YTest(1:length(XTest));
 % Categorize labels and display assignment results.
 YTrain = categorical(YTrain);
 YTest = categorical(YTest);
-tracker_str = ['The training set contains ',num2str(tracker(1,1)),' ictal and ',num2str(tracker(1,2)),' interictal observations.',newline,'The test set contains ',num2str(tracker(2,1)),' ictal and ',num2str(tracker(2,2)),' incterictal observations.'];
-disp(tracker_str);
 
 % Define LSTM Network Architecture
 inputSize = length(XTrain{1}); % input size (number of features)
@@ -106,6 +92,11 @@ numClasses = 2;
 % code to accept more classes in the future, but currently there is no
 % cause to do so.
 
+numHiddenUnits = 200; % number of hidden units in the LSTM layer
+% This variable controls the complexity of the neural network, I think.
+% Higher numbers mean more neurons, which might increase accuracy but
+% definitely increase processing time.
+
 layers = [ ...
     sequenceInputLayer(inputSize)
     lstmLayer(numHiddenUnits,'OutputMode','last')
@@ -113,12 +104,19 @@ layers = [ ...
     softmaxLayer
     classificationLayer];
 
+options = trainingOptions('adam', ...
+    'ExecutionEnvironment','auto', ...
+    'MaxEpochs',400, ...
+    'GradientThreshold',1, ...
+    'Shuffle','every-epoch', ...
+    'ValidationPatience',5, ...
+    'Plots','training-progress');
+
 % Train network
 net = trainNetwork(XTrain,YTrain,layers,options);
 
 % Test network accuracy using test set
 YPred = classify(net,XTest);
-acc = sum(YPred == YTest)./numel(YTest)
 
 YPred = double(YPred);
 YPred = YPred - 1;
