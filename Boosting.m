@@ -15,7 +15,7 @@
 
 %Import
 input_str = 'P10_FullPSD_176.mat';
-out_str = 'P10_BoostedPSD_176.mat';
+out_str = 'P10_BoostedDataInfo';
 load(input_str);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
@@ -38,7 +38,7 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
 
-save(out_str,'boostedPSD_row','boostedStateArray','n_ictals','n_high_power_interictals','-v7.3');
+save(out_str,'high_power_indices','ictal_indices','n_ictals','n_high_power_interictals','-v7.3');
 
 
 
