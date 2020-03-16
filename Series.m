@@ -46,21 +46,22 @@ sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
 
 %Here we calculate the number of trials 
-n_tr = floor(n_pts/tr_pts);
+n_tr = n_high_power_interictals +n_ictals;
 %Stores PSD - this is in Tyler's original format
-PSD_cell = cell(n_tr,1);
+nn_inputs = cell(n_tr,1);
 %This corresponds to each PSD 1-1: it is the label matrix
-State_array = zeros(n_tr,1);
+nn_targets = zeros(n_tr,1);
+nn_targets(1:n_ictals) = 1;
 
-%Initial start and stop for PSD
-start = 1;
-stop = tr_pts;
 %Intermediate PSD matrix that stores the results for one trial and is
 %eventually put into the PSD matrix at the end of the trial
 m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 %m_pwr = zeros(n_bands*n_chan,1);
 
 for t = 1:n_tr
+    i_psd = boostedIndices(t);
+    start = start + (tr_pts)*(i_psd-1);
+    stop = start + (tr_pts - 1);
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
         sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this channel's spectral profile
@@ -83,8 +84,7 @@ for t = 1:n_tr
             %m_pwr(i_pwr)=mean(mean(sp_crop,1)); %ave power for this window for all time steps %avg power for this window for all time steps
         end
     end
-    PSD_cell{t}=m_pwr;%as stated before, the intermediate PSD is put into final PSD after trial
-    %Reset Trial Start and Stop points
-    start = start + tr_pts;
-    stop = start + (tr_pts - 1);
+    nn_inputs{t}=m_pwr;%as stated before, the intermediate PSD is put into final PSD after trial
 end
+
+save(out_str,'boostedIndices','nn_inputs','nn_targets','-v7.3');
