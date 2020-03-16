@@ -35,10 +35,9 @@ ictals = PSD_row(ictal_indices,:);
 boostedPSD_row = zeros((n_ictals+n_high_power_interictals),176);
 boostedPSD_row((1:n_ictals),:)=ictals;
 boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_power_interictals;
-boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
-boostedStateArray(1:n_ictals) = 1;
+boostedIndices = vertcat(ictal_indices,high_power_indices);
 
-save(out_str,'high_power_indices','ictal_indices','n_ictals','n_high_power_interictals','-v7.3');
+save(out_str,'boostedIndices','n_ictals','n_high_power_interictals','-v7.3');
 
 
 
