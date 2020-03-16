@@ -1,8 +1,8 @@
 %% Program
-data_str = 'P10_EEG.mat'; % input filename (data)
-times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
+data_str = 'P10_EEG.mat'; % EEG input filename
+boostedDataInfo = 'P10_BoostedDataInfo';
 %out_str = 'P10_FullPSD_176.mat'; % output filename
-out_str = 'P10_FullPSD.mat';
+out_str = 'P10_BoostedPSD_2640.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
@@ -48,30 +48,6 @@ seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
 tr_pts = tr_len * srate;
 
-% Parse timestamp array into seconds
-seiz_sec = zeros(length(seiz_array),1); % initialize sseconds-only array
-t_0 = seiz_array(1,4) + 60*seiz_array(1,3) + 3600*seiz_array(1,2) + 86400*seiz_array(1,1); % start time
-for k = 1:length(seiz_array)
-    seiz_sec(k) = seiz_array(k,4) + 60*seiz_array(k,3) + 3600*seiz_array(k,2) + 86400*seiz_array(k,1) - t_0;
-end
-
-% Create a binary array indicating whether a given data point is in an
-% ictal (1) or interictal  (0) region, based on above timestamps
-s = zeros(1,n_pts);
-nt = 2; % current highlighted timestamp index
-i_state = seiz_array(1,5); % current ictal state
-for k = 1:n_pts
-    t_now = (k - 1)/srate; % current time
-    if nt <= length(seiz_sec)
-        t_next = seiz_sec(nt); % next event marker
-        if t_now >= t_next % if the next event has been reached
-            i_state = seiz_array(nt,5); % update the ictal tracker
-            nt = nt + 1; % update the event tracker
-        end
-    end
-    s(k) = i_state;
-end
-
 % Initialize array of results
 % Obtain sample spectrogram for initialization
 d_temp = data(1,1:(tr_pts));
@@ -94,12 +70,6 @@ m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 %m_pwr = zeros(n_bands*n_chan,1);
 
 for t = 1:n_tr
-    seiz_weight = mean(s(start:stop)); %check if it is ictal or interictal
-    if seiz_weight > .5
-        State_array(t)=1;%Put ictal state in state array if the trial = ictal
-    else 
-        State_array(t)=0;%Put interictal state in state array if trial = interictal
-    end 
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
         sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this channel's spectral profile
