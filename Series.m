@@ -9,13 +9,6 @@ out_str = 'P10_BoostedPSD_2640.mat';
 
 tr_len = 20; % trial length (s) (recommended: 20).
 
-thr = 0.5; % classification threshold
-% The "seiz_weight" variable is essentially the percentage of data points
-% in any given trial that are ictal. This classification threshold
-% determines what percentage of points need to be ictal for this script to
-% classify the entire trial as ictal. Altering this parameter will most
-% likely impact false positive vs. false negative rates.
-
 pwr_mode = 'abs'; % spectral power modality
 % MATLAB's Deep Learning Toolbox does not support the complex output of a
 % spectrogram, so this variable indicates the desired method of processing.
@@ -44,8 +37,6 @@ tomare = 60; % time at which while loop forcibly terminates (sec)
 % load input data
 load(data_str);
 n_chan = length(chanlocs);
-seiz_table = readtable(times_str);
-seiz_array = table2array(seiz_table);
 tr_pts = tr_len * srate;
 
 % Initialize array of results
