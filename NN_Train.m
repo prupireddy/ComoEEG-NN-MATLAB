@@ -16,10 +16,6 @@ onnx_str = 'P8_NN.onnx'; % output filename (ONNX network)
 
 train_rat = 0.5; % proportion of inputs to go into the training set
 
-numHiddenUnits = 200; % number of hidden units in the LSTM layer
-% This variable controls the complexity of the neural network, I think.
-% Higher numbers mean more neurons, which might increase accuracy but
-% definitely increase processing time.
 
 options = trainingOptions('adam', ...
     'ExecutionEnvironment','auto', ...
@@ -103,6 +99,11 @@ numClasses = 2;
 % number of classes is locked at 2. It would be interesting to modify the
 % code to accept more classes in the future, but currently there is no
 % cause to do so.
+
+numHiddenUnits = 200; % number of hidden units in the LSTM layer
+% This variable controls the complexity of the neural network, I think.
+% Higher numbers mean more neurons, which might increase accuracy but
+% definitely increase processing time.
 
 layers = [ ...
     sequenceInputLayer(inputSize)
