@@ -1,3 +1,4 @@
+%% Program
 data_str = 'P10_EEG.mat'; % input filename (data)
 times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
 %out_str = 'P10_FullPSD_176.mat'; % output filename
@@ -89,8 +90,8 @@ start = 1;
 stop = tr_pts;
 %Intermediate PSD matrix that stores the results for one trial and is
 %eventually put into the PSD matrix at the end of the trial
-%m_pwr = zeros(n_bands*n_chan,N); % spectral power array
-m_pwr = zeros(n_bands*n_chan,1);
+m_pwr = zeros(n_bands*n_chan,N); % spectral power array
+%m_pwr = zeros(n_bands*n_chan,1);
 
 for t = 1:n_tr
     seiz_weight = mean(s(start:stop)); %check if it is ictal or interictal
@@ -117,8 +118,8 @@ for t = 1:n_tr
             f_max = qq*srate/(2*n_bands); % upper frequency bound (index)
             sp_crop = sp_temp(f_min:f_max,:); % find relevant part of spectrogram
             i_pwr = (q-1)*n_bands + qq; % current index (row)
-            %m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
-            m_pwr(i_pwr)=mean(mean(sp_crop,1)); %ave power for this window for all time steps %avg power for this window for all time steps
+            m_pwr(i_pwr,:) = mean(sp_crop,1); % avg. power for this window per time step
+            %m_pwr(i_pwr)=mean(mean(sp_crop,1)); %ave power for this window for all time steps %avg power for this window for all time steps
         end
     end
     PSD_cell{t}=m_pwr;%as stated before, the intermediate PSD is put into final PSD after trial
