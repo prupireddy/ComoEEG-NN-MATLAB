@@ -60,7 +60,7 @@ m_pwr = zeros(n_bands*n_chan,N); % spectral power array
 
 for t = 1:n_tr
     i_psd = boostedIndices(t);
-    start = start + (tr_pts)*(i_psd-1);
+    start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
