@@ -10,7 +10,7 @@
 % function properly.
 %% Inputs and Outputs
 
-in_str = 'P10_Features.mat'; % input filename
+in_str = 'P10_BoostedPSD_2640.mat'; % input filename
 mat_str = 'P10_NN.mat'; % output filename (.mat)
 onnx_str = 'P10_NN.onnx'; % output filename (ONNX network)
 load(in_str);
