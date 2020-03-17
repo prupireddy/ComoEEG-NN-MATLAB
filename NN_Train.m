@@ -24,6 +24,7 @@ load(in_str);
 nn_targets = transpose(nn_targets);
 %}
 
+train_rat = 0.5; % proportion of inputs to go into the training set
 % Separate data into training and target sets (this script does so
 % randomly, with a proportion determined by the user. Make sure there are
 % enough observations made by the previous scripts for this to work.
@@ -40,10 +41,10 @@ n_train = 1; % number of training observations recorded (offset 1 for index reas
 n_test = 1;
 
 tracker = zeros(2,2); % tracks ictal/interictal observations in each set
-train_rat = 0.5; % proportion of inputs to go into the training set
 
 for k = 1:n_obs % for each observation
     Q = rand; % generate random number
+    disp(Q)
     if (Q < train_rat) && (n_train <= length(XTrain)) % add observation k to the training set, if there is room
         % n.b. indexing errors will occur if there are less observations
         % than there are features, due to how length() works. But you
@@ -53,6 +54,7 @@ for k = 1:n_obs % for each observation
         YTrain(n_train) = nn_targets(k);
         n_train = n_train + 1;
         % update tracker information
+        disp('train')
         if nn_targets(k) == 1
             tracker(1,1) = tracker(1,1) + 1;
         else
@@ -63,6 +65,7 @@ for k = 1:n_obs % for each observation
         YTest(n_test) = nn_targets(k);
         n_test = n_test + 1;
         % update tracker information
+        disp('test')
         if nn_targets(k) == 1
             tracker(2,1) = tracker(2,1) + 1;
         else
@@ -139,5 +142,5 @@ Accuracy = (TP+TN)/(TP+TN+FN+FP);
 ConfusionMatrix = [TPR,FPR,TNR,FNR,Accuracy];
 
 % Export files
-save(mat_str,'net','acc');
+save(mat_str,'net');
 exportONNXNetwork(net,onnx_str);
