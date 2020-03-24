@@ -37,7 +37,7 @@
 
 data_str = 'P10_EEG.mat'; % input filename (data)
 times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P10_FullPSD_176.mat'; % output filename
+out_str = 'P10_TFullPSD_176.mat'; % output filename
 %out_str = 'P10_FullPSD.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
@@ -115,7 +115,7 @@ sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
 
 %Here we calculate the number of trials 
-n_tr = floor(n_pts/tr_pts);
+n_tr = floor(n_pts/tr_pts)-1; %cuts off the last trial so because the t differential has 1 less point
 %Stores PSD - this is in Tyler's original format
 PSD_cell = cell(n_tr,1);
 %This corresponds to each PSD 1-1: it is the label matrix
