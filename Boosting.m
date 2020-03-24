@@ -26,6 +26,7 @@ proj_no_ictal = proj(interictal_indices);%remove ictals
 [sortedproj,unsortedIndices] = sort(proj_no_ictal);%find the highest power interictals
 postextracted_high_power_indices = unsortedIndices(1:n_high_power_interictals);%find the original index in the interictal only matrix
 high_power_indices = interictal_indices(postextracted_high_power_indices);%find the original index in the matrix containing ictals
+boostedIndices = vertcat(ictal_indices,high_power_indices);
 high_power_interictals = PSD_row(high_power_indices,:);%high power interictials
 ictals = PSD_row(ictal_indices,:);%ictals
 %Create a new matrix that srores the ictals and high power interictals
@@ -36,8 +37,11 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
 
-save(out_str,'boostedPSD_row','boostedStateArray','n_ictals','n_high_power_interictals','-v7.3');
-
+for t = 1:n_tr
+    i_psd = boostedIndices(t);
+    start = 1 + (tr_pts)*(i_psd-1);
+    stop = start + (tr_pts - 1);
+end
 
 
 
