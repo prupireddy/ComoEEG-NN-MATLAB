@@ -10,8 +10,8 @@
 %% Program
 
 %Import
-input_str = 'P10_FullPSD_176.mat';
-out_str = 'P10_BoostedPSD_176.mat';
+input_str = 'P10_TFullPSD_176.mat';
+out_str = 'P10_TBoostedPSD_176.mat';
 load(input_str);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
