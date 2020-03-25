@@ -56,7 +56,6 @@ for l = 1:n_tr
     S=spectrogram(diff(data(1,start:stop)),512,256);
     h = imagesc(log(abs(S)))
     colormap('gray')
-    imsave(h)
 end
 
 
