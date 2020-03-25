@@ -10,9 +10,12 @@
 %% Program
 
 %Import
+data_str = 'P10_EEG.mat';
 input_str = 'P10_TFullPSD_176.mat';
-out_str = 'P10_TBoostedPSD_176.mat';
+load(data_str);
 load(input_str);
+
+out_str = 'P10_TBoostedPSD_176.mat';
 
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
@@ -38,10 +41,17 @@ boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
 
 n_tr = n_high_power_interictals + n_ictals;
-for t = 1:n_tr
-    i_psd = boostedIndices(t);
+for l = 1:n_tr
+    i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
+    params.tapers = [3 5];
+    params.pad = 0;
+    params.Fs = 256;
+    params.fpass = [0,128];
+    params.err = 1;
+    params.trialave = 0;
+    [S,t,f,Serr] = mtspecgramc(data(:,start:stop),[2,1], params);
 end
 
 
