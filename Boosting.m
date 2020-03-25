@@ -46,13 +46,17 @@ boostedStateArray(1:n_ictals) = 1;
 % params.fpass = [0,128];
 % params.err = 1;
 % params.trialave = 1;
+%[S,t,f,Serr] = mtspecgramc(data(1,start:stop),[1,.25], params);
+
 n_tr = n_high_power_interictals + n_ictals;
-for l = n_tr
+for l = 1:n_tr
     i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
-    %[S,t,f,Serr] = mtspecgramc(data(1,start:stop),[1,.25], params);
-    S=spectrogram(data(1,start:stop),[256,16]);
+    S=spectrogram(diff(data(1,start:stop)),512,256);
+    h = imagesc(log(abs(S)))
+    colormap('gray')
+    imsave(h)
 end
 
 
