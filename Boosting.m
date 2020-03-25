@@ -39,19 +39,20 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 %Create the State array that corresponds to each of the PSD index-by-index
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
-
+% 
+% params.tapers = [3 5];
+% params.pad = 0;
+% params.Fs = 256;
+% params.fpass = [0,128];
+% params.err = 1;
+% params.trialave = 1;
 n_tr = n_high_power_interictals + n_ictals;
-for l = 1:n_tr
+for l = n_tr
     i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
-    params.tapers = [3 5];
-    params.pad = 0;
-    params.Fs = 256;
-    params.fpass = [0,128];
-    params.err = 1;
-    params.trialave = 0;
-    [S,t,f,Serr] = mtspecgramc(data(:,start:stop),[2,1], params);
+    %[S,t,f,Serr] = mtspecgramc(data(1,start:stop),[1,.25], params);
+    S=spectrogram(data(1,start:stop),[256,16]);
 end
 
 
