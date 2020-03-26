@@ -58,7 +58,7 @@ for l = 1:n_tr
         h = imagesc(log(abs(S)));
         colormap('gray')
         fileStr = erase(data_str,"EEG.mat");
-        fileStr = strcat(fileStr,num2str(l),num2str(c));
+        fileStr = strcat(fileStr,num2str(l),"_",num2str(c));
         saveas(h,fullfile(fpath,fileStr),'png');
     end
 end
