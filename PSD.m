@@ -183,4 +183,5 @@ ictal_indices = find(State_array);%Finds the non-zero entries in State_array: 1s
 interictal_indices=find(~State_array);%Finds the zero entries in State_array, and thus the interical indices
 
 %Save as output the row-per-observation matrix and the index trackers
-save(out_str,'PSD_row','State_array','ictal_indices','interictal_indices','tr_pts','-v7.3');
+save(out_str,'PSD_row','State_array','ictal_indices','interictal_indices','tr_pts','n_chan'...
+,'-v7.3');
