@@ -15,8 +15,6 @@ input_str = 'P10_TFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
-out_str = 'P10_TBoostedPSD_176.mat';
-
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
 %Second is test%In this case, they are the same for simplicity
@@ -49,13 +47,20 @@ boostedStateArray(1:n_ictals) = 1;
 %[S,t,f,Serr] = mtspecgramc(data(1,start:stop),[1,.25], params);
 
 n_tr = n_high_power_interictals + n_ictals;
+mkdir spectrograms
+fpath = strcat(pwd,'\spectrograms');
 for l = 1:n_tr
     i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
-    S=spectrogram(diff(data(1,start:stop)),512,256);
-    h = imagesc(log(abs(S)))
-    colormap('gray')
+    for c = 1:n_chan
+        S=spectrogram(diff(data(c,start:stop)),512,256);
+        h = imagesc(log(abs(S)));
+        colormap('gray')
+        fileStr = erase(data_str,"EEG.mat");
+        fileStr = strcat(fileStr,num2str(l),num2str(c));
+        saveas(h,fullfile(fpath,fileStr),'png');
+    end
 end
 
 
