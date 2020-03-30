@@ -37,19 +37,13 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 %Create the State array that corresponds to each of the PSD index-by-index
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
-% 
-% params.tapers = [3 5];
-% params.pad = 0;
-% params.Fs = 256;
-% params.fpass = [0,128];
-% params.err = 1;
-% params.trialave = 1;
-%[S,t,f,Serr] = mtspecgramc(data(1,start:stop),[1,.25], params);
-
-
+    
 mkdir ictal
 fpath = strcat(pwd,'\ictal');
+baseStr = erase(data_str,"EEG.mat");
+baseStr = strcat(fpath,'\',baseStr);
 for l = 1:n_ictals
+    fileStr = strcat(baseStr,num2str(l),'.TIFF');
     i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
@@ -57,29 +51,37 @@ for l = 1:n_ictals
         S=spectrogram(diff(data(c,start:stop)),512,256);
         h = imagesc(log(abs(S)));
         colormap('gray')
-        fileStr = erase(data_str,"EEG.mat");
-        fileStr = strcat(fileStr,num2str(l),"_",num2str(c));
-        saveas(h,fullfile(fpath,fileStr),'png');
+        H = getimage(h);
+        if c == 1
+            imwrite(H,fileStr);
+        else
+            imwrite(H,fileStr,'WriteMode','append');
+        end
     end
-end
+end   
 
-n_tr = n_ictals+n_high_power_interictals;
+n_tr = n_ictals + n_high_power_interictals;
 mkdir interictal
 fpath = strcat(pwd,'\interictal');
-for m = (n_ictals+1):(n_tr)
-    i_psd = boostedIndices(m);
+baseStr = erase(data_str,"EEG.mat");
+baseStr = strcat(fpath,'\',baseStr);
+for l = (n_ictals+1):n_tr
+    fileStr = strcat(baseStr,num2str(l),'.TIFF');
+    i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
-    for d = 1:n_chan
-        S=spectrogram(diff(data(d,start:stop)),512,256);
+    for c = 1:n_chan
+        S=spectrogram(diff(data(c,start:stop)),512,256);
         h = imagesc(log(abs(S)));
         colormap('gray')
-        fileStr = erase(data_str,"EEG.mat");
-        fileStr = strcat(fileStr,num2str(m),"_",num2str(d));
-        saveas(h,fullfile(fpath,fileStr),'png');
+        H = getimage(h);
+        if c == 1
+            imwrite(H,fileStr);
+        else
+            imwrite(H,fileStr,'WriteMode','append');
+        end
     end
 end
-
 
 
 
