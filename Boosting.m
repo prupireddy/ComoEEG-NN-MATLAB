@@ -46,10 +46,10 @@ boostedStateArray(1:n_ictals) = 1;
 % params.trialave = 1;
 %[S,t,f,Serr] = mtspecgramc(data(1,start:stop),[1,.25], params);
 
-n_tr = n_high_power_interictals + n_ictals;
-mkdir spectrograms
-fpath = strcat(pwd,'\spectrograms');
-for l = 1:n_tr
+
+mkdir ictal
+fpath = strcat(pwd,'\ictal');
+for l = 1:n_ictals
     i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
@@ -62,6 +62,25 @@ for l = 1:n_tr
         saveas(h,fullfile(fpath,fileStr),'png');
     end
 end
+
+n_tr = n_ictals+n_high_power_interictals;
+mkdir interictal
+fpath = strcat(pwd,'\interictal');
+for m = (n_ictals+1):(n_tr)
+    i_psd = boostedIndices(m);
+    start = 1 + (tr_pts)*(i_psd-1);
+    stop = start + (tr_pts - 1);
+    for d = 1:n_chan
+        S=spectrogram(diff(data(d,start:stop)),512,256);
+        h = imagesc(log(abs(S)));
+        colormap('gray')
+        fileStr = erase(data_str,"EEG.mat");
+        fileStr = strcat(fileStr,num2str(m),"_",num2str(d));
+        saveas(h,fullfile(fpath,fileStr),'png');
+    end
+end
+
+
 
 
 
