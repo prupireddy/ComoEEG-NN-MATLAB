@@ -49,11 +49,11 @@ for l = 1:n_ictals
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
         S=spectrogram(diff(data(c,start:stop)),512,256);
-        h = imagesc(log(abs(S)));
+        h = image(log(abs(S)));
         colormap('gray')
         H = getimage(h);
         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
-        H = imresize(H,[875 656]);
+        %H = imresize(H,[875 656]);
         if c == 1
             imwrite(H,fileStr);
         else
@@ -74,11 +74,11 @@ for l = (n_ictals+1):n_tr
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
         S=spectrogram(diff(data(c,start:stop)),512,256);
-        h = imagesc(log(abs(S)));
+        h = image(log(abs(S)));
         colormap('gray')
         H = getimage(h);
         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
-        H = imresize(H,[875 656]);
+        %H = imresize(H,[875 656]);
         if c == 1
             imwrite(H,fileStr);
         else
