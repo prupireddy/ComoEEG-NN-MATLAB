@@ -10,9 +10,9 @@
 %% Program
 
 %Import
-data_str = 'P10_EEG.mat';
+data_str = 'P4_EEG.mat';
 %input_str = 'P10_TFullPSD_176.mat';
-input_str = 'P10_TIFullPSD_176.mat';
+input_str = 'P4_TIFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
@@ -50,7 +50,7 @@ for l = 1:n_ictals
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
         S=spectrogram(diff(data(c,start:stop)),512,256);
-        h = image(log(abs(S)));
+        h = imagesc(log(abs(S)));
         colormap('gray')
         H = getimage(h);
         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
@@ -75,7 +75,7 @@ for l = (n_ictals+1):n_tr
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
         S=spectrogram(diff(data(c,start:stop)),512,256);
-        h = image(log(abs(S)));
+        h = imagesc(log(abs(S)));
         colormap('gray')
         H = getimage(h);
         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
