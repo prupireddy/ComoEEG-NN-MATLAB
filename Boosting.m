@@ -11,7 +11,8 @@
 
 %Import
 data_str = 'P10_EEG.mat';
-input_str = 'P10_TFullPSD_176.mat';
+%input_str = 'P10_TFullPSD_176.mat';
+input_str = 'P10_TIFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
