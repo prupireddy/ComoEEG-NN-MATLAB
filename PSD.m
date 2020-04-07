@@ -37,8 +37,9 @@
 
 data_str = 'P10_EEG.mat'; % input filename (data)
 times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P10_TFullPSD_176.mat'; % output filename
+%out_str = 'P10_TFullPSD_176.mat'; % output filename
 %out_str = 'P10_FullPSD.mat';
+out_str = 'P10_TIFullPSD_176.mat'
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
@@ -130,13 +131,18 @@ stop = tr_pts;
 m_pwr = zeros(n_bands*n_chan,1);
 
 for t = 1:n_tr
-    seiz_weight1 = (((tr_pts-1)*mean(s((start+1):stop))) + 1/2*(s(stop+1)+s(start)))/tr_pts; %check if it is ictal or interictal
-    if seiz_weight1 > .5
-        State_array(t)=1;%Put ictal state in state array if the trial = ictal
-    else 
-        State_array(t)=0;%Put interictal state in state array if trial = interictal
-    end 
-    seiz_weight1 = mean(s(start:stop));
+%     seiz_weight1 = (((tr_pts-1)*mean(s((start+1):stop))) + 1/2*(s(stop+1)+s(start)))/tr_pts; %check if it is ictal or interictal
+%     if seiz_weight1 > .5
+%         State_array(t)=1;%Put ictal state in state array if the trial = ictal
+%     else 
+%         State_array(t)=0;%Put interictal state in state array if trial = interictal
+%     end 
+    %seiz_weight1 = mean(s(start:stop));
+    if nnz(s(start:(stop+1))) > 0
+        State_array(t) = 1;
+    else
+        State_array(t) = 0;
+    end
     for q = 1:n_chan % for each channel
         d_temp = data(q,start:stop); % find relevant section of data
         sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this channel's spectral profile
