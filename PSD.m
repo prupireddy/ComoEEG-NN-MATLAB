@@ -2,9 +2,9 @@
 
 % This script takes as input a .mat file containing a patient's EEG data as
 % well as an .xlsx spreadsheet containing timestamps for seizure onset and
-% end. Its purpose is to prepare a labeled feature set for use in MATLAB's
-% pattern recognition application, and it outputs another .mat file
-% containing applicable feature and target arrays. The input .mat file is
+% end. Its purpose is to prepare PSD features for all the data points
+% to isolate the highest power interictals in the Boosting procedure (Boosting.m) 
+%that follows. The input .mat file is
 % created from an .edf file using the script tk_stitcher.m. The .xlsx file
 % was transcribed by hand from a plaintext file. In the .xlsx file, the
 % "state" column indicates beginning (1) and end (0) of each seizure.
@@ -17,7 +17,7 @@
 %8 frequency bands x 15 time steps in 20 s window. This method has been
 %commented out. Instead, the method used here is averaged over all 15 time
 %steps, so it is only 176 features. This was done to avoid accuracy-reducing
-%PCA in LDA (explained furhter in report) 
+%PCA in LDA (explained furhter in the LDA Classifier report I believe) 
  
 % In the output matrix, each row corresponds to a single
 %observation, a single trial. The features are average spectral power
@@ -25,11 +25,15 @@
 % such that all band powers from one channel, in increasing order of
 % frequency, appear before the band powers of the next channel (from left
 %to right). This format is necessary so that this would become compatible
-%with LDA. The format described is possessed by PSD_row. IT more or less is
+%with LDA. The format described is possessed by PSD_row. It more or less is
 %taking the native format and, proceeding downwards, peeling of the next
 %row and appending it to the top row. Index trackers (which indices are ictal
 %and which indices are interictal) are bundled with the output matrix in
 %the final output. 
+
+%By default, you can calculate all of these PSDs using the time difference.
+%By default, you also consider something as an ictal observation if only
+%one data point is ictal. 
 
 %PSD_cell has the same format as Tyler's
 %original output, but it is not in the final output. 
@@ -80,7 +84,7 @@ tomare = 60; % time at which while loop forcibly terminates (sec)
 
 % load input data
 load(data_str);
-data = diff(data,1,2);
+data = diff(data,1,2); %Time difference
 n_chan = length(chanlocs);
 seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
@@ -131,14 +135,16 @@ stop = tr_pts;
 m_pwr = zeros(n_bands*n_chan,1);
 
 for t = 1:n_tr
-%     seiz_weight1 = (((tr_pts-1)*mean(s((start+1):stop))) + 1/2*(s(stop+1)+s(start)))/tr_pts; %check if it is ictal or interictal
-%     if seiz_weight1 > .5
+%     seiz_weight1 = (((tr_pts-1)*mean(s((start+1):stop))) +
+%     1/2*(s(stop+1)+s(start)))/tr_pts; %check if it is ictal or interictal
+%     - this is using time difference but not the 1 ictal data point
+%     if seiz_weight1 > .5 %This is using neither time difference nor the one ictal data point
 %         State_array(t)=1;%Put ictal state in state array if the trial = ictal
 %     else 
 %         State_array(t)=0;%Put interictal state in state array if trial = interictal
 %     end 
     %seiz_weight1 = mean(s(start:stop));
-    if nnz(s(start:(stop+1))) > 0
+    if nnz(s(start:(stop+1))) > 0 %This is using the one ictal data point as the characterization of an ictal window
         State_array(t) = 1;
     else
         State_array(t) = 0;
