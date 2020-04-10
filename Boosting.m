@@ -1,5 +1,6 @@
 %% Explanation
-%This program takes in all of the PSD data as as input. It then computes
+%This program takes in all of the PSD data as as input - either time difference and/or
+%with the ictal classification. It then computes
 %LDA scores for all of the data. It then finds the n interictals with the
 %highest LDA scores, where n in the number of ictals. It then adds the
 %interictals under the ictals to created the boostedData. It also creates a
@@ -7,6 +8,12 @@
 %it a series of 1s (number of ictals) followed by a series of 0's (number of interictals). 
 %It also outputs the number of ictals and the number of interictals, which
 %are set to be the same. 
+
+%It takes these and creates spectrograms with 2s and 1s overlap. It
+%converts them down to 0 to 1, converts to TIFF format (the format that
+%allows stacking) and stacks them. All of the boosted trials have a TIFF
+%output - each - and all of the boosted TIFFs are sent into one filder and
+%all of ictal TIFFs are sent into another folder. 
 %% Program
 
 %Import
@@ -39,26 +46,26 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
     
-mkdir ictal
-fpath = strcat(pwd,'\ictal');
+mkdir ictal %ictal folder
+fpath = strcat(pwd,'\ictal'); %path to the folder
 baseStr = erase(data_str,"EEG.mat");
-baseStr = strcat(fpath,'\',baseStr);
-for l = 1:n_ictals
-    fileStr = strcat(baseStr,num2str(l),'.TIFF');
-    i_psd = boostedIndices(l);
-    start = 1 + (tr_pts)*(i_psd-1);
+baseStr = strcat(fpath,'\',baseStr);%Used as the base for the file name
+for l = 1:n_ictals %iterate over each ictal observation
+    fileStr = strcat(baseStr,num2str(l),'.TIFF'); %Complete the name
+    i_psd = boostedIndices(l);%locate the index of the observation in interest
+    start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
-        S=spectrogram(diff(data(c,start:stop)),512,256);
-        h = imagesc(log(abs(S)));
+        S=spectrogram(diff(data(c,start:stop)),512,256); 
+        h = imagesc(log(abs(S))); %image handle
         colormap('gray')
-        H = getimage(h);
-        H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
+        H = getimage(h); %Image Data
+        H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all')); %0-1: required for TIFF
         %H = imresize(H,[875 656]);
         if c == 1
-            imwrite(H,fileStr);
+            imwrite(H,fileStr); %Form and Save Base layer of TIFF
         else
-            imwrite(H,fileStr,'WriteMode','append');
+            imwrite(H,fileStr,'WriteMode','append'); %Stack and save subsequent layers
         end
     end
 end   
