@@ -84,7 +84,6 @@ tomare = 60; % time at which while loop forcibly terminates (sec)
 
 % load input data
 load(data_str);
-data = diff(data,1,2); %Time difference
 n_chan = length(chanlocs);
 seiz_table = readtable(times_str);
 seiz_array = table2array(seiz_table);
@@ -116,12 +115,12 @@ end
 
 % Initialize array of results
 % Obtain sample spectrogram for initialization
-d_temp = data(1,1:(tr_pts));
+d_temp = diff(data(1,1:(tr_pts)));
 sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
 
 %Here we calculate the number of trials 
-n_tr = floor(n_pts/tr_pts)-1; %cuts off the last trial so because the t differential has 1 less point
+n_tr = floor(n_pts/tr_pts); %cuts off the last trial so because the t differential has 1 less point
 %Stores PSD - this is in Tyler's original format
 PSD_cell = cell(n_tr,1);
 %This corresponds to each PSD 1-1: it is the label matrix
@@ -144,13 +143,13 @@ for t = 1:n_tr
 %         State_array(t)=0;%Put interictal state in state array if trial = interictal
 %     end 
     %seiz_weight1 = mean(s(start:stop));
-    if nnz(s(start:(stop+1))) > 0 %This is using the one ictal data point as the characterization of an ictal window
+    if nnz(s(start:stop)) > 0 %This is using the one ictal data point as the characterization of an ictal window
         State_array(t) = 1;
     else
         State_array(t) = 0;
     end
     for q = 1:n_chan % for each channel
-        d_temp = data(q,start:stop); % find relevant section of data
+        d_temp = diff(data(q,start:stop)); % find relevant section of data
         sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this channel's spectral profile
         switch pwr_mode
             case 'abs'
