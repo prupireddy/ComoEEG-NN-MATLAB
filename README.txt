@@ -9,7 +9,7 @@ Output: P(insert patient number)_EEG.mat - MATLAB EEG
 
 2. PSD: Generates PSD Features on all 20s fragments with 176 features, original (however many features) commented out. You have the option to use the time diff
 erential method or use the default. You also have the option to define an ictal window as one wherein if at least 1 data point is ictal, then the whole window is 
-considered ictal. 
+considered ictal. The default is the time difference and the definition. 
 Input: P(insert patient number)_Annotations.xslx - Contains Seizure On/Off Set Times
 + P(insert patient number)_EEG.mat (O from previous) - MATLAB EEG
 Output: 3 options - 
