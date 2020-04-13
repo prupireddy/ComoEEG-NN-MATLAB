@@ -144,6 +144,7 @@ for t = 1:n_tr
 %         State_array(t)=0;%Put interictal state in state array if trial = interictal
 %     end 
     %seiz_weight1 = mean(s(start:stop));
+%   if nnz(s(start:(stop+1))) > 0 %Old time differential calculation method 
     if nnz(s(start:stop)) > 0 %This is using the one ictal data point as the characterization of an ictal window
         State_array(t) = 1;
     else
