@@ -15,7 +15,8 @@ Input: P(insert patient number)_Annotations.xslx - Contains Seizure On/Off Set T
 Output: 3 options - 
 1. P(insert patient number)_FullPSD_176 - Features
 2. P(insert patient number)_TFullPSD_176: Time difference
-3. P(insert patient number)_TIFullPSD_176: Time Difference as well as with the ictal window definition
+3. P(insert patient number)_TIFullPSD_176: Time Difference as well as with the 1 ictal = ictal window definition
+4. P(insert patient number)_TNIFullPSD_176: Tay's Calculation-Style of Time Differential as well as with the 1 ictal = ictal window definition
 
 3. Boosting: Generates TIFF spectrograms (each page/layer is one channel's spectrogram in grayscale) for all ictals and an equal number of highest power interictals
 Input: P(Insert patient number)_(T)(I)FullPSD_176 - Features
