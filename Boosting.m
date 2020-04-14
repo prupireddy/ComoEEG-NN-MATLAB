@@ -54,25 +54,26 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
 
-globalMax = 0
-globalMin = 200
+globalMax = 0;
+globalMin = 200;
 
 for l = 1:n_ictals
-    i_psd = boostedIndices(l)
-    start = 1 + (tr_pts)*(i_psd - 1)
-    stop  = start + (tr_pts - 1)
+    i_psd = boostedIndices(l);
+    start = 1 + (tr_pts)*(i_psd - 1);
+    stop  = start + (tr_pts - 1);
     for c = 1:chan
         S = spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
-        currentMax = max(abs(S),[],'all')
+        currentMax = max(abs(S),[],'all');
         if currentMax > globalMax
-            globalMax = currentMax
+            globalMax = currentMax;
         end
-        currentMin = min(abs(S),[],'all')
+        currentMin = min(abs(S),[],'all');
         if currentMin < globalMin 
-            globalMin = currentMin
+            globalMin = currentMin;
         end
     end
-   
+end
+
 n_tr = n_ictals + n_high_power_interictals;
 for l = (n_ictals+1):n_tr
     i_psd = boostedIndices(l);
@@ -80,16 +81,16 @@ for l = (n_ictals+1):n_tr
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
         S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
-        currentMax = max(abs(S),[],'all')
+        currentMax = max(abs(S),[],'all');
         if currentMax > globalMax
-            globalMax = currentMax
+            globalMax = currentMax;
         end
-        currentMin = min(abs(S),[],'all')
+        currentMin = min(abs(S),[],'all');
         if currentMin < globalMin 
-            globalMin = currentMin
+            globalMin = currentMin;
         end
     end
-     
+end
     
 % mkdir ictal %ictal folder
 % fpath = strcat(pwd,'\ictal'); %path to the folder
