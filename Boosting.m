@@ -18,11 +18,18 @@
 
 %Import
 data_str = 'P10_EEG.mat';
+
+d = designfilt('bandstopiir','FilterOrder',2, ...
+               'HalfPowerFrequency1',59,'HalfPowerFrequency2',61, ...
+               'DesignMethod','butter','SampleRate',256);
+           
 %input_str = 'P10_TFullPSD_176.mat';
 %input_str = 'P10_TIFullPSD_176.mat';
 input_str = 'P10_TNIFullPSD_176.mat';
 load(data_str);
 load(input_str);
+
+%data = filtfilt(d,data);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
@@ -57,7 +64,7 @@ for l = 1:n_ictals %iterate over each ictal observation
     start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
-        S=spectrogram(diff(data(c,start:stop)),512,256); 
+        S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256); 
         h = imagesc(log(abs(S))); %image handle
         colormap('gray')
         H = getimage(h); %Image Data
@@ -82,8 +89,8 @@ for l = (n_ictals+1):n_tr
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
-        S=spectrogram(diff(data(c,start:stop)),512,256);
-        h = imagesc(log(abs(S)));
+        S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
+        h = imagesc(log(abs(S))); %image handle
         colormap('gray')
         H = getimage(h);
         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
