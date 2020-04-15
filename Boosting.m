@@ -67,96 +67,104 @@ params.err = 0;
 params.trialave = 0;
 
 for l = 1:n_ictals
-    i_psd = boostedIndices(1);
+    i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd - 1);
     stop  = start + (tr_pts - 1);
     for c = 1:n_chan
-       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(15,start:stop))),movingwin,params);filtered
-       [S,t,f] = mtspecgramc(diff(data(15,start:stop)),movingwin,params);
+       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
+       [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
        S = S';
        S = log(abs(S));
-       S = mean(S,2);
        f = f';
-       plot(f,S)
-       currentMax = max((S),[],'all');
+       S(111:131,:) = [];
+       f(111:131) = [];
+       currentMax = max(S,[],'all');
        if currentMax > globalMax
            globalMax = currentMax;
        end
-       currentMin = min((S),[],'all');
+       currentMin = min(S,[],'all');
        if currentMin < globalMin 
            globalMin = currentMin;
        end
     end
 end
 
-% n_tr = n_ictals + n_high_power_interictals;
-% for l = (n_ictals+1):n_tr
-%     i_psd = boostedIndices(l);
-%     start = 1 + (tr_pts)*(i_psd-1);
-%     stop = start + (tr_pts - 1);
-%     for c = 1:n_chan
-%         S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
-%         currentMax = max(log(abs(S)),[],'all');
-%         if currentMax > globalMax
-%             globalMax = currentMax;
-%         end
-%         currentMin = min(log(abs(S)),[],'all');
-%         if currentMin < globalMin 
-%             globalMin = currentMin;
-%         end
-%     end
-% end
+n_tr = n_ictals + n_high_power_interictals;
+for l = (n_ictals+1):n_tr
+    i_psd = boostedIndices(l);
+    start = 1 + (tr_pts)*(i_psd-1);
+    stop = start + (tr_pts - 1);
+    for c = 1:n_chan
+%        S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
+        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+        S = S';
+        S = log(abs(S));
+        f = f';
+        S(111:131,:) = [];
+        f(111:131) = [];
+        currentMax = max(S,[],'all');
+        if currentMax > globalMax
+            globalMax = currentMax;
+        end
+        currentMin = min(S,[],'all');
+        if currentMin < globalMin 
+            globalMin = currentMin;
+        end
+    end
+end
     
-% mkdir ictal %ictal folder
-% fpath = strcat(pwd,'\ictal'); %path to the folder
-% baseStr = erase(data_str,"EEG.mat");
-% baseStr = strcat(fpath,'\',baseStr);%Used as the base for the file name
-% for l = 1:n_ictals %iterate over each ictal observation
-%     fileStr = strcat(baseStr,num2str(l),'.TIFF'); %Complete the name
-%     i_psd = boostedIndices(l);%locate the index of the observation in interest
-%     start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
-%     stop = start + (tr_pts - 1);
-%     for c = 1:n_chan
-%         S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256); 
-%         h = imagesc(log(abs(S))); %image handle
-%         colormap('gray')
-%         H = getimage(h); %Image Data
-%         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all')); %0-1: required for TIFF
-%         %H = imresize(H,[875 656]);
-%         if c == 1
-%             imwrite(H,fileStr); %Form and Save Base layer of TIFF
-%         else
-%             imwrite(H,fileStr,'WriteMode','append'); %Stack and save subsequent layers
-%         end
-%     end
-% end   
-% 
-% n_tr = n_ictals + n_high_power_interictals;
-% mkdir interictal
-% fpath = strcat(pwd,'\interictal');
-% baseStr = erase(data_str,"EEG.mat");
-% baseStr = strcat(fpath,'\',baseStr);
-% for l = (n_ictals+1):n_tr
-%     fileStr = strcat(baseStr,num2str(l),'.TIFF');
-%     i_psd = boostedIndices(l);
-%     start = 1 + (tr_pts)*(i_psd-1);
-%     stop = start + (tr_pts - 1);
-%     for c = 1:n_chan
-%         S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
-%         h = imagesc(log(abs(S))); %image handle
-%         colormap('gray')
-%         H = getimage(h);
-%         H = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
-%         %H = imresize(H,[875 656]);
-%         if c == 1
-%             imwrite(H,fileStr);
-%         else
-%             imwrite(H,fileStr,'WriteMode','append');
-%         end
-%     end
-% end
-% 
-% 
-% 
-% 
-% 
+mkdir ictal %ictal folder
+fpath = strcat(pwd,'\ictal'); %path to the folder
+baseStr = erase(data_str,"EEG.mat");
+baseStr = strcat(fpath,'\',baseStr);%Used as the base for the file name
+for l = 1:n_ictals %iterate over each ictal observation
+    fileStr = strcat(baseStr,num2str(l),'.TIFF'); %Complete the name
+    i_psd = boostedIndices(l);%locate the index of the observation in interest
+    start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
+    stop = start + (tr_pts - 1);
+    for c = 1:n_chan
+%        S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256); 
+        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+        S = S';
+        S = log(abs(S));
+        f = f';
+        S(111:131,:) = [];
+        f(111:131) = [];
+        colormap('gray')
+        H = getimage(h); %Image Data
+        if c == 1
+            imwrite(H,fileStr); %Form and Save Base layer of TIFF
+        else
+            imwrite(H,fileStr,'WriteMode','append'); %Stack and save subsequent layers
+        end
+    end
+end   
+
+n_tr = n_ictals + n_high_power_interictals;
+mkdir interictal
+fpath = strcat(pwd,'\interictal');
+baseStr = erase(data_str,"EEG.mat");
+baseStr = strcat(fpath,'\',baseStr);
+for l = (n_ictals+1):n_tr
+    fileStr = strcat(baseStr,num2str(l),'.TIFF');
+    i_psd = boostedIndices(l);
+    start = 1 + (tr_pts)*(i_psd-1);
+    stop = start + (tr_pts - 1);
+    for c = 1:n_chan
+%        S=spectrogram(diff(filtfilt(d,data(c,start:stop))),512,256);
+        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+        S = S';
+        S = log(abs(S));
+        f = f';
+        S(111:131,:) = [];
+        f(111:131) = [];
+        colormap('gray')
+        H = getimage(h);
+        if c == 1
+            imwrite(H,fileStr);
+        else
+            imwrite(H,fileStr,'WriteMode','append');
+        end
+    end
+end
+
