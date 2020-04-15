@@ -112,7 +112,7 @@ for l = (n_ictals+1):n_tr
         end
     end
 end
-    
+
 mkdir ictal %ictal folder
 fpath = strcat(pwd,'\ictal'); %path to the folder
 baseStr = erase(data_str,"EEG.mat");
@@ -130,8 +130,7 @@ for l = 1:n_ictals %iterate over each ictal observation
         f = f';
         S(111:131,:) = [];
         f(111:131) = [];
-        colormap('gray')
-        H = getimage(h); %Image Data
+        H = (S - globalMin)/(globalMax-globalMin);
         if c == 1
             imwrite(H,fileStr); %Form and Save Base layer of TIFF
         else
@@ -158,8 +157,7 @@ for l = (n_ictals+1):n_tr
         f = f';
         S(111:131,:) = [];
         f(111:131) = [];
-        colormap('gray')
-        H = getimage(h);
+        H = (S - globalMin)/(globalMax-globalMin);
         if c == 1
             imwrite(H,fileStr);
         else
