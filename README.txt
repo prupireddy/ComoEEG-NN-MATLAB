@@ -1,5 +1,5 @@
--Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram - CNN V1. 
-Brainstorming notes are stored in the Brainstorming folder in the same location - but I am not sure if I have uploaded them yet.
+-Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram - Report
+Brainstorming notes are stored in the Brainstorming folder in the same location's CNN V2 folder - but I am not sure if I have uploaded them yet.
 
 -There are three scripts (in order of execution):
 
