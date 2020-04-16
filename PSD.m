@@ -10,8 +10,17 @@
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
 % The features calculated by this script are the average spectral
-% frequencies across eight bands per channel. This is
+% frequencies across eight bands per channel (time differential). This is
 % done for all of the data, not just randomly picked 100 trials. 
+
+%The current method has time differential calculated right before the
+%spectrogram calculation. In order to revert it back to CNN V2 you will
+%need to uncomment a couple lines right before spectrogram calculation and add
+%differential right after loading. Just refer to V1 just in case. This
+%method also has the condition that if 1 ictal point is in the window, the
+%whole window is considered ictal. To reverse it back, you just need to
+%uncomment one of the lines before the spectrogram calculations. Just refer
+%back to tdif_and_sgram if unsure. 
 
 %Tyler's original model uses actually 2640 features as it is 22 channels x 
 %8 frequency bands x 15 time steps in 20 s window. This method has been
@@ -151,7 +160,7 @@ for t = 1:n_tr
         State_array(t) = 0;
     end
     for q = 1:n_chan % for each channel
-        d_temp = diff(data(q,start:stop)); % find relevant section of data
+        d_temp = diff(data(q,start:stop)); % find relevant section of data and calculate time differential (this is new)
         sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate); % this channel's spectral profile
         switch pwr_mode
             case 'abs'
