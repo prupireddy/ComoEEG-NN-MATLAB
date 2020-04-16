@@ -17,7 +17,7 @@
 %% Program
 
 %Import
-data_str = 'P10_EEG.mat';
+data_str = 'P5_EEG.mat';
 
 %Filter:
 % d = designfilt('bandstopiir','FilterOrder',2, ...
@@ -26,7 +26,7 @@ data_str = 'P10_EEG.mat';
            
 %input_str = 'P10_TFullPSD_176.mat';
 %input_str = 'P10_TIFullPSD_176.mat';
-input_str = 'P10_TNIFullPSD_176.mat';
+input_str = 'P5_TNIFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
@@ -58,8 +58,8 @@ boostedStateArray(1:n_ictals) = 1;
 globalMax = 0;
 globalMin = 200;
 
-movingwin = [2 .25];
-%movingwin = [2 1];
+%movingwin = [2 .25]; %87.5% overlap
+movingwin = [2 1];
 params.tapers = [4 7];
 params.pad = 0;
 params.Fs = 256;
