@@ -17,7 +17,7 @@
 %% Program
 
 %Import
-data_str = 'P5_EEG.mat';
+data_str = 'P6_EEG.mat';
 
 %Filter:
 % d = designfilt('bandstopiir','FilterOrder',2, ...
@@ -26,7 +26,7 @@ data_str = 'P5_EEG.mat';
            
 %input_str = 'P10_TFullPSD_176.mat';
 %input_str = 'P10_TIFullPSD_176.mat';
-input_str = 'P5_TNIFullPSD_176.mat';
+input_str = 'P6_TNIFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
