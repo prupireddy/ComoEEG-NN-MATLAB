@@ -9,8 +9,12 @@
 %It also outputs the number of ictals and the number of interictals, which
 %are set to be the same. 
 
-%It takes these and creates spectrograms with 2s and 1s overlap. It
-%converts them down to 0 to 1, converts to TIFF format (the format that
+%It takes these and creates multitaper spectrograms (it is commented out
+%, but you do have the option to add in a notch filter) with 2s and 1s overlap. It does 
+%this twice, the first time is to find the min and max spectral density values to create the 
+%bounds on the spectrograms. The second to actually calculate the spectrograms It
+%converts them down to 0 to 1 using the min and max. Each time it cuts out the 
+%55-65 Hz to ignore the 60Hz noise. It then converts to TIFF format (the format that
 %allows stacking) and stacks them. All of the boosted trials have a TIFF
 %output - each - and all of the boosted TIFFs are sent into one filder and
 %all of ictal TIFFs are sent into another folder. 
@@ -58,15 +62,17 @@ boostedStateArray(1:n_ictals) = 1;
 globalMax = 0;
 globalMin = 200;
 
+%Parameters for the Multitaper Spectrograms
 %movingwin = [2 .25]; %87.5% overlap
-movingwin = [2 1];
-params.tapers = [4 7];
-params.pad = 0;
-params.Fs = 256;
-params.fpass = [0 128];
-params.err = 0;
-params.trialave = 0;
+movingwin = [2 1]; %50% overlap
+params.tapers = [4 7]; %Time-bandwidth and number of tapers
+params.pad = 0; %No padding
+params.Fs = 256; %Sampling Rate
+params.fpass = [0 128]; %Range of frequencies
+params.err = 0; %Error bars
+params.trialave = 0; %No averaging over trials
 
+%First pair of loops to find global max and min spectrogram values
 for l = 1:n_ictals
     i_psd = boostedIndices(l);
     start = 1 + (tr_pts)*(i_psd - 1);
@@ -74,10 +80,10 @@ for l = 1:n_ictals
     for c = 1:n_chan
        %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
-       S = S';
-       S = log(abs(S));
+       S = S'; %default is flipped of usual
+       S = log(abs(S));%log normalization
        f = f';
-       S(111:131,:) = [];
+       S(111:131,:) = []; %Cut out 55-65 Hz
        f(111:131) = [];
        currentMax = max(S,[],'all');
        if currentMax > globalMax
@@ -113,7 +119,7 @@ for l = (n_ictals+1):n_tr
         end
     end
 end
-
+%Second pair to actually create the spectrograms
 mkdir ictal %ictal folder
 fpath = strcat(pwd,'\ictal'); %path to the folder
 baseStr = erase(data_str,"EEG.mat");
@@ -131,7 +137,7 @@ for l = 1:n_ictals %iterate over each ictal observation
         f = f';
         S(111:131,:) = [];
         f(111:131) = [];
-        H = (S - globalMin)/(globalMax-globalMin);
+        H = (S - globalMin)/(globalMax-globalMin); %Put the image data on the same scale and get between 0 and 1
         if c == 1
             imwrite(H,fileStr); %Form and Save Base layer of TIFF
         else
