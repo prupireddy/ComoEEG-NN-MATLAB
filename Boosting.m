@@ -59,9 +59,6 @@ boostedPSD_row(((n_ictals+1):(n_ictals+n_high_power_interictals)),:) = high_powe
 boostedStateArray = zeros((n_ictals+n_high_power_interictals),1);
 boostedStateArray(1:n_ictals) = 1;
 
-globalMax = 0;
-globalMin = 200;
-
 %Parameters for the Multitaper Spectrograms
 %movingwin = [2 .25]; %87.5% overlap
 movingwin = [2 1]; %50% overlap
@@ -72,60 +69,13 @@ params.fpass = [0 128]; %Range of frequencies
 params.err = 0; %Error bars
 params.trialave = 0; %No averaging over trials
 
-%First pair of loops to find global max and min spectrogram values
-for l = 1:n_ictals
-    i_psd = boostedIndices(l);
-    start = 1 + (tr_pts)*(i_psd - 1);
-    stop  = start + (tr_pts - 1);
-    for c = 1:n_chan
-       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-       [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
-       S = S'; %default is flipped of usual
-       S = log(abs(S));%log normalization
-       f = f';
-       S(111:131,:) = []; %Cut out 55-65 Hz
-       f(111:131) = [];
-       currentMax = max(S,[],'all');
-       if currentMax > globalMax
-           globalMax = currentMax;
-       end
-       currentMin = min(S,[],'all');
-       if currentMin < globalMin 
-           globalMin = currentMin;
-       end
-    end
-end
-
-n_tr = n_ictals + n_high_power_interictals;
-for l = (n_ictals+1):n_tr
-    i_psd = boostedIndices(l);
-    start = 1 + (tr_pts)*(i_psd-1);
-    stop = start + (tr_pts - 1);
-    for c = 1:n_chan
-%       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
-        S = S';
-        S = log(abs(S));
-        f = f';
-        S(111:131,:) = [];
-        f(111:131) = [];
-        currentMax = max(S,[],'all');
-        if currentMax > globalMax
-            globalMax = currentMax;
-        end
-        currentMin = min(S,[],'all');
-        if currentMin < globalMin 
-            globalMin = currentMin;
-        end
-    end
-end
-%Second pair to actually create the spectrograms
-mkdir ictal %ictal folder
-fpath = strcat(pwd,'\ictal'); %path to the folder
+mkdir spectrograms %ictal folder
+fpath = strcat(pwd,'\spectrograms'); %path to the folder
 baseStr = erase(data_str,"EEG.mat");
 baseStr = strcat(fpath,'\',baseStr);%Used as the base for the file name
-for l = 1:n_ictals %iterate over each ictal observation
-    fileStr = strcat(baseStr,num2str(l),'.TIFF'); %Complete the name
+for l = 1:(n_ictals + n_interictals)%iterate over all observations
+    k = l-1;
+    obvStr = strcat(baseStr,num2str(k),"_"); %Complete the name
     i_psd = boostedIndices(l);%locate the index of the observation in interest
     start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
     stop = start + (tr_pts - 1);
@@ -137,39 +87,14 @@ for l = 1:n_ictals %iterate over each ictal observation
         f = f';
         S(111:131,:) = [];
         f(111:131) = [];
-        H = (S - globalMin)/(globalMax-globalMin); %Put the image data on the same scale and get between 0 and 1
-        if c == 1
-            imwrite(H,fileStr); %Form and Save Base layer of TIFF
-        else
-            imwrite(H,fileStr,'WriteMode','append'); %Stack and save subsequent layers
-        end
+        b = c-1;
+        chanStr = strcat(obvStr,num2str(b),".bin")
+        fwrite(chanStr,S,'float64')
     end
 end   
 
-n_tr = n_ictals + n_high_power_interictals;
-mkdir interictal
-fpath = strcat(pwd,'\interictal');
-baseStr = erase(data_str,"EEG.mat");
-baseStr = strcat(fpath,'\',baseStr);
-for l = (n_ictals+1):n_tr
-    fileStr = strcat(baseStr,num2str(l),'.TIFF');
-    i_psd = boostedIndices(l);
-    start = 1 + (tr_pts)*(i_psd-1);
-    stop = start + (tr_pts - 1);
-    for c = 1:n_chan
-%       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
-        S = S';
-        S = log(abs(S));
-        f = f';
-        S(111:131,:) = [];
-        f(111:131) = [];
-        H = (S - globalMin)/(globalMax-globalMin);
-        if c == 1
-            imwrite(H,fileStr);
-        else
-            imwrite(H,fileStr,'WriteMode','append');
-        end
-    end
-end
+StateStr = strcat(baseStr,"state.bin")
+fwrite(StateStr,boostedStateArray,'float64')
+
+
 
