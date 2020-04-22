@@ -73,7 +73,7 @@ mkdir spectrograms %ictal folder
 fpath = strcat(pwd,'\spectrograms'); %path to the folder
 baseStr = erase(data_str,"EEG.mat");
 baseStr = strcat(fpath,'\',baseStr);%Used as the base for the file name
-for l = 1:(n_ictals + n_interictals)%iterate over all observations
+for l = 1:(n_ictals + n_high_power_interictals)%iterate over all observations
     k = l-1;
     obvStr = strcat(baseStr,num2str(k),"_"); %Complete the name
     i_psd = boostedIndices(l);%locate the index of the observation in interest
@@ -88,13 +88,16 @@ for l = 1:(n_ictals + n_interictals)%iterate over all observations
         S(111:131,:) = [];
         f(111:131) = [];
         b = c-1;
-        chanStr = strcat(obvStr,num2str(b),".bin")
-        fwrite(chanStr,S,'float64')
+        chanStr = strcat(obvStr,num2str(b),".bin");
+        fileID = fopen(chanStr,'w');
+        fwrite(fileID,S,'float64');
+        fclose(fileID);
     end
 end   
 
-StateStr = strcat(baseStr,"state.bin")
-fwrite(StateStr,boostedStateArray,'float64')
-
+StateStr = strcat(baseStr,"state.bin");
+fileID = fopen(StateStr,'w');
+fwrite(fileID,boostedStateArray,'float64');
+fclose(fileID);
 
 
