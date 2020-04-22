@@ -90,14 +90,26 @@ for l = 1:(n_ictals + n_high_power_interictals)%iterate over all observations
         b = c-1;
         chanStr = strcat(obvStr,num2str(b),".bin");
         fileID = fopen(chanStr,'w');
-        fwrite(fileID,S,'float64');
+        fwrite(fileID,S,'double');
         fclose(fileID);
     end
 end   
 
-StateStr = strcat(baseStr,"state.bin");
-fileID = fopen(StateStr,'w');
-fwrite(fileID,boostedStateArray,'float64');
+stateStr = strcat(baseStr,"state.bin");
+fileID = fopen(stateStr,'w');
+fwrite(fileID,boostedStateArray,'double');
 fclose(fileID);
+
+shapeArray = zeros(3,1)
+shapeArray(1) = n_chan
+[H,W] = size(S)
+shapeArray(2) = H
+shapeArray(3) = W
+shapeStr = strcat(baseStr,"shape.bin");
+fileID = fopen(shapeStr,'w');
+fwrite(fileID,shapeArray,'double')
+fclose(fileID);
+
+
 
 
