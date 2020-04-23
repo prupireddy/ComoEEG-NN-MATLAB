@@ -15,9 +15,10 @@ Output: 3 options -
 1. P(insert patient number)_FullPSD_176 - Features
 2. P(insert patient number)_TFullPSD_176: Time difference
 3. P(insert patient number)_TIFullPSD_176: Time Difference as well as with the 1 ictal = ictal window definition
-4. P(insert patient number)_TNIFullPSD_176: Tay's Calculation-Style of Time Differential as well as with the 1 ictal = ictal window definition (default)
+4. P(insert patient number)_TNIFullPSD_176: Tay's Calculation-Style of Time Differential on the first PSD as well as with the 1 ictal = ictal window definition (default)
 
-3. Boosting: Generates multitaper spectrograms for all ictals and an equal number of highest power interictals, shape array, and state array - all in binary
+3. Boosting: Generates multitaper spectrograms for all ictals and an equal number of highest power interictals, shape array, and state array - all in binary after taking out all the ictals
+and an equal number of the highest power interictals
 Input: P(Insert patient number)_(T)(N)(I)FullPSD_176 - Features
 Output: All in a spectrograms folder - P(Insert patient number)_(Observation #)_(Channel #).bin - spectrograms, P(Insert patient number)_state&shape.bin - state and shape arrays
 
