@@ -19,7 +19,7 @@ Output: 3 options -
 
 3. Boosting: Generates multitaper spectrograms for all ictals and an equal number of highest power interictals, shape array, and state array - all in binary
 Input: P(Insert patient number)_(T)(N)(I)FullPSD_176 - Features
-Output: P(Insert patient number)_(Observation #)_(Channel #).bin
+Output: All in a spectrograms folder - P(Insert patient number)_(Observation #)_(Channel #).bin - spectrograms, P(Insert patient number)_state&shape.bin - state and shape arrays
 
 4. Feed the results of 3 into NN.py from the master branch in ComoEEG-NN-PYTHON
 
