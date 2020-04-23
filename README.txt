@@ -1,4 +1,4 @@
--Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram - CNN V1. 
+-Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram - CNN V3. 
 Brainstorming notes are stored in the Brainstorming folder in the same location - but I am not sure if I have uploaded them yet.
 
 -There are three scripts (in order of execution):
@@ -17,9 +17,9 @@ Output: 3 options -
 3. P(insert patient number)_TIFullPSD_176: Time Difference as well as with the 1 ictal = ictal window definition
 4. P(insert patient number)_TNIFullPSD_176: Tay's Calculation-Style of Time Differential as well as with the 1 ictal = ictal window definition (default)
 
-3. Boosting: Generates TIFF spectrograms (each page/layer is one channel's spectrogram in grayscale) for all ictals and an equal number of highest power interictals
-Input: P(Insert patient number)_(T)(I)FullPSD_176 - Features
-Output: P(Insert patient number)_1-(#Observations).TIFF. Stored in the ictal and interictal folders respectively. 
+3. Boosting: Generates multitaper spectrograms for all ictals and an equal number of highest power interictals, shape array, and state array - all in binary
+Input: P(Insert patient number)_(T)(N)(I)FullPSD_176 - Features
+Output: P(Insert patient number)_(Observation #)_(Channel #).bin
 
 4. Feed the results of 3 into NN.py from the master branch in ComoEEG-NN-PYTHON
 
