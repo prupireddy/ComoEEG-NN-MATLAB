@@ -10,14 +10,10 @@
 %are set to be the same. 
 
 %It takes these and creates multitaper spectrograms (it is commented out
-%, but you do have the option to add in a notch filter) with 2s and 1s overlap. It does 
-%this twice, the first time is to find the min and max spectral density values to create the 
-%bounds on the spectrograms. The second to actually calculate the spectrograms It
-%converts them down to 0 to 1 using the min and max. Each time it cuts out the 
-%55-65 Hz to ignore the 60Hz noise. It then converts to TIFF format (the format that
-%allows stacking) and stacks them. All of the boosted trials have a TIFF
-%output - each - and all of the boosted TIFFs are sent into one filder and
-%all of ictal TIFFs are sent into another folder. 
+%, but you do have the option to add in a notch filter) with 2s and 1s overlap. After
+%log-normalizing, itt cuts out the 55-65 Hz to ignore the 60Hz noise. It
+%then exports the spectrogram into binary file format - iterates over all observations and channels
+%doing thus. At the end, it outputs a state array and a shape array into binary file format. 
 %% Program
 
 %Import
@@ -69,37 +65,42 @@ params.fpass = [0 128]; %Range of frequencies
 params.err = 0; %Error bars
 params.trialave = 0; %No averaging over trials
 
-mkdir spectrograms %ictal folder
+mkdir spectrograms %spectrogram folder
 fpath = strcat(pwd,'\spectrograms'); %path to the folder
 baseStr = erase(data_str,"EEG.mat");
 baseStr = strcat(fpath,'\',baseStr);%Used as the base for the file name
 for l = 1:(n_ictals + n_high_power_interictals)%iterate over all observations
     k = l-1;
-    obvStr = strcat(baseStr,num2str(k),"_"); %Complete the name
+    obvStr = strcat(baseStr,num2str(k),"_"); %Complete the name for the observation
     i_psd = boostedIndices(l);%locate the index of the observation in interest
     start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
 %       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
         [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+        %Transpose
         S = S';
-        S = log(abs(S));
         f = f';
+        S = log(abs(S));
+        %Cut out noise
         S(111:131,:) = [];
         f(111:131) = [];
         b = c-1;
-        chanStr = strcat(obvStr,num2str(b),".bin");
+        %export to binary file
+        chanStr = strcat(obvStr,num2str(b),".bin");%Complete the full name by adding channel
         fileID = fopen(chanStr,'w');
         fwrite(fileID,S,'double');
         fclose(fileID);
     end
 end   
 
+%State Array
 stateStr = strcat(baseStr,"state.bin");
 fileID = fopen(stateStr,'w');
 fwrite(fileID,boostedStateArray,'double');
 fclose(fileID);
 
+%Shape Array
 shapeArray = zeros(3,1)
 shapeArray(1) = n_chan
 [H,W] = size(S)
