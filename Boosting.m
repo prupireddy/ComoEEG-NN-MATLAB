@@ -17,7 +17,7 @@
 %% Program
 
 %Import
-data_str = 'P10_EEG.mat';
+data_str = 'P4_EEG.mat';
 
 %Filter:
 % d = designfilt('bandstopiir','FilterOrder',2, ...
@@ -26,7 +26,7 @@ data_str = 'P10_EEG.mat';
            
 %input_str = 'P10_TFullPSD_176.mat';
 %input_str = 'P10_TIFullPSD_176.mat';
-input_str = 'P10_TNIFullPSD_176.mat';
+input_str = 'P4_TIFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
@@ -77,14 +77,19 @@ for l = 1:(n_ictals + n_high_power_interictals)%iterate over all observations
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
 %       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+%        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+        S=spectrogram(diff(data(c,start:stop)),512,256); 
         %Transpose
         S = S';
         f = f';
         S = log(abs(S));
         %Cut out noise
-        S(111:131,:) = [];
-        f(111:131) = [];
+%         S(111:131,:) = [];
+%         f(111:131) = [];
+        h = imagesc(S);
+        colormap('gray')
+        H = getimage(h);
+        S = (H - min(H,[],'all'))/(max(H,[],'all')-min(H,[],'all'));
         b = c-1;
         %export to binary file
         chanStr = strcat(obvStr,num2str(b),".bin");%Complete the full name by adding channel
