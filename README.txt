@@ -1,4 +1,4 @@
--Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram - CNN V1. 
+-Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram. 
 Brainstorming notes are stored in the Brainstorming folder in the same location - but I am not sure if I have uploaded them yet.
 
 -There are three scripts (in order of execution):
@@ -21,7 +21,7 @@ Output: 3 options -
 Input: P(Insert patient number)_(T)(I)FullPSD_176 - Features
 Output: P(Insert patient number)_1-(#Observations).TIFF. Stored in the ictal and interictal folders respectively. 
 
-4. Feed the results of 3 into NN.py from the master branch in ComoEEG-NN-PYTHON
+4. Feed the results of 3 into NN.py from the CNN_V4 in ComoEEG-NN-PYTHON
 
 *The actual implementation is pretty easy. At the very beginning of each program, there is a section that states the names of the input and output files. Just 
 change the patient number in the file names and change the current directory to the one with that patient's files and you are all set. 
