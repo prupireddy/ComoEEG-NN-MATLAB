@@ -11,8 +11,8 @@
 
 %% User-Defined Parameters  
 
-edf_name = 'Patient #4.edf';
-mat_name = 'P4_EEG.mat';
+edf_name = 'Patient #10.edf';
+mat_name = 'P10_EEG.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
