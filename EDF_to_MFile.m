@@ -11,8 +11,8 @@
 
 %% User-Defined Parameters  
 
-edf_name = 'Patient #4.edf';
-mat_name = 'P4_DEEG.mat';
+edf_name = 'Patient #8.edf';
+mat_name = 'P8_DEEG.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
@@ -74,42 +74,13 @@ while complete == false
         temp_diffdata = zeros(x)
     end
     temp_diffdata(main,:) = temp_data(main,:) - temp_data(reference,:)
-
-%     temp_diffdata(main,:)=temp_data(main,:) - temp_data(reference,:)
-%     temp_diffdata(5,:) = temp_data(5,:) - temp_data(19,:)
-%     temp_diffdata(19,:) = temp_data(19,:) - temp_data(10,:)
-%     temp_diffdata(10,:) = temp_data(10,:) - temp_data(13,:)
-%     temp_diffdata(13,:) = temp_data(13,:) - temp_data(15,:)
-%     temp_diffdata(15,:) = temp_data(15,:) - temp_data(14,:)
-%     temp_diffdata(14,:) = temp_data(14,:) - temp_data(11,:)
-%     temp_diffdata(11,:) = temp_data(11,:) - temp_data(20,:)
-%     temp_diffdata(6,:) = temp_data(6,:) - temp_data(20,:)
-%     temp_diffdata(20,:) = temp_data(20,:) - temp_data(22,:)
-%     temp_diffdata(22,:) = temp_data(22,:) - temp_data(4,:)
-%     temp_diffdata(4,:) = temp_data(4,:) - temp_data(3,:)
-%     temp_diffdata(3,:) = temp_data(3,:) - temp_data(21,:)
-%     temp_diffdata(21,:) = temp_data(21,:) - temp_data(19,:)
-%     temp_diffdata(1,:) = temp_data(1,:) - temp_data(8,:)
-%     temp_diffdata(8,:) = temp_data(8,:) - temp_data(12,:)
-%     temp_diffdata(12,:) = temp_data(12,:) - temp_data(9,:)
-%     temp_diffdata(9,:) = temp_data(9,:) - temp_data(2,:)
-%     temp_diffdata(2,:) = temp_data(2,:) - temp_data(17,:)
-%     temp_diffdata(17,:) = temp_data(17,:) - temp_data(18,:)
-%     temp_diffdata(18,:) = temp_data(18,:) - temp_data(16,:)
-%     temp_diffdata(16,:) = temp_data(16,:) - temp_data(1,:)
-%     temp_diffdata(7,:) = temp_data(7,:) - temp_data(12,:)
-
     n_start = (n*buffer*srate)+1; % start index of data block
     n_end = n_start + srate * (t_end - t_start) - 1; % end index of data block
     data(:,(n_start:n_end)) = temp_diffdata; % update m_all
-%    data(:,(n_start:n_end)) = temp_data; % update m_all
     n = n+1; % update loop completion tracker
 end
 
 % Export data to .mat files
 chanlocs = temp_EEG.chanlocs; % struct array that contains data on recording sites
-%x = size(data)
-%diffdata = zeros(x)
-%diffdata(main,:) = data(main,:) - data(reference,:)
 save(mat_name,'data','chanlocs','srate','t_end','n_pts','-v7.3'); % saves to .mat file
-%save(mat_name,'diffdata','chanlocs','srate','t_end','n_pts','-v7.3'); % saves to .mat file
+
