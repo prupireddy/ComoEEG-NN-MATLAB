@@ -39,11 +39,11 @@
 %original output, but it is not in the final output. 
 %% User-Defined Parameters
 
-data_str = 'P8_DEEG.mat'; % input filename (data)
-times_str = 'P8_Annotations.xlsx'; % input filename (seizure times)
+data_str = 'P10_DEEG.mat'; % input filename (data)
+times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
 %out_str = 'P10_TFullPSD_176.mat'; % output filename
 %out_str = 'P10_FullPSD.mat';
-out_str = 'P8_TIDFullPSD_176.mat'
+out_str = 'P10_TIDFullPSD_176.mat'
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
