@@ -17,9 +17,9 @@
 %% Program
 
 %Import
-data_str = 'P8_DEEG.mat';
+data_str = 'P10_DEEG.mat';
 %input_str = 'P10_TFullPSD_176.mat';
-input_str = 'P8_TIDFullPSD_176.mat';
+input_str = 'P10_TIDFullPSD_176.mat';
 load(data_str);
 load(input_str);
 
