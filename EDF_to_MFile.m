@@ -50,6 +50,9 @@ if buffer == 0 % if the user does not wish to use a buffer
     buffer = t_max;
 end
 
+main = [5,19,10,13,15,14,11,6,20,22,4,3,21,1,8,12,9,2,17,18,16,7]
+reference = [19,10,13,15,14,11,20,20,22,4,3,21,19,8,12,9,2,17,18,16,1,12]
+
 % Read file and fill data
 complete = false;
 n = 0; % number of iterations completed
@@ -67,28 +70,29 @@ while complete == false
         x = size(temp_data)
         temp_diffdata = zeros(x)
     end
-    temp_diffdata(5,:) = temp_data(5,:) - temp_data(19,:)
-    temp_diffdata(19,:) = temp_data(19,:) - temp_data(10,:)
-    temp_diffdata(10,:) = temp_data(10,:) - temp_data(13,:)
-    temp_diffdata(13,:) = temp_data(13,:) - temp_data(15,:)
-    temp_diffdata(15,:) = temp_data(15,:) - temp_data(14,:)
-    temp_diffdata(14,:) = temp_data(14,:) - temp_data(11,:)
-    temp_diffdata(11,:) = temp_data(11,:) - temp_data(20,:)
-    temp_diffdata(6,:) = temp_data(6,:) - temp_data(20,:)
-    temp_diffdata(20,:) = temp_data(20,:) - temp_data(22,:)
-    temp_diffdata(22,:) = temp_data(22,:) - temp_data(4,:)
-    temp_diffdata(4,:) = temp_data(4,:) - temp_data(3,:)
-    temp_diffdata(3,:) = temp_data(3,:) - temp_data(21,:)
-    temp_diffdata(21,:) = temp_data(21,:) - temp_data(19,:)
-    temp_diffdata(1,:) = temp_data(1,:) - temp_data(8,:)
-    temp_diffdata(8,:) = temp_data(8,:) - temp_data(12,:)
-    temp_diffdata(12,:) = temp_data(12,:) - temp_data(9,:)
-    temp_diffdata(9,:) = temp_data(9,:) - temp_data(2,:)
-    temp_diffdata(2,:) = temp_data(2,:) - temp_data(17,:)
-    temp_diffdata(17,:) = temp_data(17,:) - temp_data(18,:)
-    temp_diffdata(18,:) = temp_data(18,:) - temp_data(16,:)
-    temp_diffdata(16,:) = temp_data(16,:) - temp_data(1,:)
-    temp_diffdata(7,:) = temp_data(7,:) - temp_data(12,:)
+    temp_diffdata(main,:)=temp_data(main,:) - temp_data(reference,:)
+%     temp_diffdata(5,:) = temp_data(5,:) - temp_data(19,:)
+%     temp_diffdata(19,:) = temp_data(19,:) - temp_data(10,:)
+%     temp_diffdata(10,:) = temp_data(10,:) - temp_data(13,:)
+%     temp_diffdata(13,:) = temp_data(13,:) - temp_data(15,:)
+%     temp_diffdata(15,:) = temp_data(15,:) - temp_data(14,:)
+%     temp_diffdata(14,:) = temp_data(14,:) - temp_data(11,:)
+%     temp_diffdata(11,:) = temp_data(11,:) - temp_data(20,:)
+%     temp_diffdata(6,:) = temp_data(6,:) - temp_data(20,:)
+%     temp_diffdata(20,:) = temp_data(20,:) - temp_data(22,:)
+%     temp_diffdata(22,:) = temp_data(22,:) - temp_data(4,:)
+%     temp_diffdata(4,:) = temp_data(4,:) - temp_data(3,:)
+%     temp_diffdata(3,:) = temp_data(3,:) - temp_data(21,:)
+%     temp_diffdata(21,:) = temp_data(21,:) - temp_data(19,:)
+%     temp_diffdata(1,:) = temp_data(1,:) - temp_data(8,:)
+%     temp_diffdata(8,:) = temp_data(8,:) - temp_data(12,:)
+%     temp_diffdata(12,:) = temp_data(12,:) - temp_data(9,:)
+%     temp_diffdata(9,:) = temp_data(9,:) - temp_data(2,:)
+%     temp_diffdata(2,:) = temp_data(2,:) - temp_data(17,:)
+%     temp_diffdata(17,:) = temp_data(17,:) - temp_data(18,:)
+%     temp_diffdata(18,:) = temp_data(18,:) - temp_data(16,:)
+%     temp_diffdata(16,:) = temp_data(16,:) - temp_data(1,:)
+%     temp_diffdata(7,:) = temp_data(7,:) - temp_data(12,:)
     n_start = (n*buffer*srate)+1; % start index of data block
     %n_end = (n+1)*buffer*srate; % end index of data block
     n_end = n_start + srate * (t_end - t_start) - 1; % end index of data block
