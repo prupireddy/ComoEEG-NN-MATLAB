@@ -7,8 +7,8 @@
 %% Program
 
 %Import
-input_str = 'P10_FullPSD_176.mat';
-out_str = 'P10_BoostedDataInfo';
+input_str = 'P4_FullPSD_176.mat';
+out_str = 'P4_BoostedDataInfo';
 load(input_str);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
