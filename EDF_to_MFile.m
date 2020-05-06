@@ -1,13 +1,24 @@
 %% Metadata
 
-% This script takes a given .edf file and converts it into a .mat file for
-% use with further scripts. It uses EEGLAB's pop_biosig() function as a
-% base but includes additional code to load .edf files piece-by-piece and
-% save on memory usage.
 
 % In order for this script to run, EEGLAB and its BIOSIG extension must be
 % installed. EEGLAB must be launched (by adding it to the path and typing
-% 'eeglab' in the command window) before this script will run properly.
+% 'eeglab' in the command window) before this script will run properly
+
+% This script takes a given .edf file and converts it into a .mat file for
+% use with further scripts. It uses EEGLAB's pop_biosig() function as a
+% base but includes additional code to load .edf files piece-by-piece and
+% save on memory usage. For each piece, a vectorized (to improve performance) 
+% spatial difference is calculated. Since each channel has a set location for all
+% patients (you can verify this by opening the eeglab GUI, importing an edf
+% file (import 1-23 channels - only 2-23 matter, but for some reason
+%the first electode extracted is given the label of 'Event' even though
+%it should only belong to channel 1), go to Edit > channel locations), I have the
+% same differences for each patient to represent the spatial difference
+% where the nearest electode is the reference electrode. They have also
+% been formed under the assumption that the reference electode should not
+% have been the main electode for which the current electrode was a
+% reference.
 
 %% User-Defined Parameters  
 
@@ -50,8 +61,8 @@ if buffer == 0 % if the user does not wish to use a buffer
     buffer = t_max;
 end
 
-main = [5,19,10,13,15,14,11,6,20,22,4,3,21,1,8,12,9,2,17,18,16,7]
-reference = [19,10,13,15,14,11,20,20,22,4,3,21,19,8,12,9,2,17,18,16,1,12]
+main = [5,19,10,13,15,14,11,6,20,22,4,3,21,1,8,12,9,2,17,18,16,7] %vectorized rows of the main electrode
+reference = [19,10,13,15,14,11,20,20,22,4,3,21,19,8,12,9,2,17,18,16,1,12] %vectorized rows of each of the main electode's corresponding reference (nearest) electrode
 
 % Read file and fill data
 complete = false;
@@ -73,7 +84,7 @@ while complete == false
         x = size(temp_data)
         temp_diffdata = zeros(x)
     end
-    temp_diffdata(main,:) = temp_data(main,:) - temp_data(reference,:)
+    temp_diffdata(main,:) = temp_data(main,:) - temp_data(reference,:)%spatial difference for the nearest electrode
     n_start = (n*buffer*srate)+1; % start index of data block
     n_end = n_start + srate * (t_end - t_start) - 1; % end index of data block
     data(:,(n_start:n_end)) = temp_diffdata; % update m_all
