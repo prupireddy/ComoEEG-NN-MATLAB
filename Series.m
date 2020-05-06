@@ -18,10 +18,10 @@
 % array is 0 (second half) or 1 (first half). 
 
 %% Program
-data_str = 'P10_EEG.mat'; % EEG input filename
-boostedDataInfo = 'P10_BoostedDataInfo'; %Indices of ictal or interictal
+data_str = 'P4_EEG.mat'; % EEG input filename
+boostedDataInfo = 'P4_BoostedDataInfo'; %Indices of ictal or interictal
 %out_str = 'P10_FullPSD_176.mat'; % output filename
-out_str = 'P10_BoostedPSD_2640.mat';
+out_str = 'P4_BoostedPSD_2640.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
 % .mat.
