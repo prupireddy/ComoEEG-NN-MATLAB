@@ -1,6 +1,7 @@
 %% Explanation
-%This program takes in all of the PSD data as as input - either time difference and/or
-%with the ictal classification. It then computes
+%This program takes in all of the PSD data as as input - based on 
+%spatially differentiated EEG and either time difference and/or
+%with the ictal classification (default being both). It then computes
 %LDA scores for all of the data. It then finds the n interictals with the
 %highest LDA scores, where n in the number of ictals. It then adds the
 %interictals under the ictals to created the boostedData. It also creates a
@@ -9,10 +10,11 @@
 %It also outputs the number of ictals and the number of interictals, which
 %are set to be the same. 
 
-%It takes these and creates spectrograms with 2s and 1s overlap. It
+%It takes these and creates spectrograms - based on the spatially
+%differeniated EEG - with 2s and 1s overlap. It
 %converts them down to 0 to 1, converts to TIFF format (the format that
 %allows stacking) and stacks them. All of the boosted trials have a TIFF
-%output - each - and all of the boosted TIFFs are sent into one filder and
+%output - each - and all of the boosted TIFFs are sent into one folder and
 %all of ictal TIFFs are sent into another folder. 
 %% Program
 
