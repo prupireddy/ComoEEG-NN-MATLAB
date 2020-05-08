@@ -15,7 +15,7 @@
 
 %Import
 %input_str = 'P9_FullPSD.mat';
-input_str = 'P10_FullPSD_176.mat';
+input_str = 'P5_FullPSD_176.mat';
 load(input_str);
 
 %PCA
@@ -71,9 +71,13 @@ figure
 plot(roc(:,1),roc(:,2)) %plot roc curve with x values as false positives and y values as true positives
 xlabel('False Positive Rate')
 ylabel('True Positive Rate')
-title('ROC Curve of All Data Projected After LDA')
+title('ROC Curve of Linear Discriminant Analysis Patient 5')
 hold on
-plot(linspace(0,1,length(State_array)),linspace(0,1,length(State_array))) %plot naive classifier
+plot(linspace(0,1,length(State_array)),linspace(0,1,length(State_array)))
+hold on
+plot(.0049,1,'*r')
+legend({'ROC Curve','Random Classifier','Best Threshold'},'Location','Southeast')
+%plot naive classifier
 
 % % Determine indices of Data that passes the Threshold Set by the LDA 
 %  projection ROC
