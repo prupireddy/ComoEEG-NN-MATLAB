@@ -35,9 +35,9 @@
 %original output, but it is not in the final output. 
 %% User-Defined Parameters
 
-data_str = 'P9_EEG.mat'; % input filename (data)
-times_str = 'P9_Annotations.xlsx'; % input filename (seizure times)
-out_str = 'P9_FullPSD_176.mat'; % output filename
+data_str = 'P10_EEG.mat'; % input filename (data)
+times_str = 'P10_Annotations.xlsx'; % input filename (seizure times)
+out_str = 'P10_FullPSD_176.mat'; % output filename
 %out_str = 'P10_FullPSD.mat';
 % Input and output filenames. Use full path names or move MATLAB's working
 % directory to the correct location beforehand. Output extension should be
