@@ -10,10 +10,12 @@
 %are set to be the same. 
 
 %It takes these and creates multitaper spectrograms (it is commented out
-%, but you do have the option to add in a notch filter) with 2s and 1s overlap. It does 
+%, but you do have the option to add in a notch filter and/or a low pass filter) with 2s and 1s overlap. It does 
 %this twice, the first time is to find the min and max spectral density values to create the 
-%bounds on the spectrograms. The second to actually calculate the spectrograms It
-%converts them down to 0 to 1 using the min and max. Each time it cuts out the 
+%bounds on the spectrograms. The second to actually calculate the spectrograms. It
+%converts them down to 0 to 1 using the min and max. You have the option 
+% to use a more outlier resistant version, which is currently commented out. 
+%The non-commented versions are the default versions. Each time it cuts out the 
 %55-65 Hz to ignore the 60Hz noise. It then converts to TIFF format (the format that
 %allows stacking) and stacks them. All of the boosted trials have a TIFF
 %output - each - and all of the boosted TIFFs are sent into one filder and
@@ -21,20 +23,21 @@
 %% Program
 
 %Import
-data_str = 'P6_EEG.mat';
+data_str = 'P10_EEG.mat';
 
-%Filter:
+%60 Hz Notch Filter:
 % d = designfilt('bandstopiir','FilterOrder',2, ...
 %                'HalfPowerFrequency1',59,'HalfPowerFrequency2',61, ...
 %                'DesignMethod','butter','SampleRate',256);
-           
+
+%Low Pass Filter
+%[b,a] = butter(4,.5,'low');
+
 %input_str = 'P10_TFullPSD_176.mat';
 %input_str = 'P10_TIFullPSD_176.mat';
-input_str = 'P6_TNIFullPSD_176.mat';
+input_str = 'P10_TNIFullPSD_176.mat';
 load(data_str);
 load(input_str);
-
-%data = filtfilt(d,data);
 
 %Check out https://www.mathworks.com/help/stats/classify.html
 [~,~,~,~,coeff] = classify(PSD_row,PSD_row,State_array);%LDA%First entry is train
@@ -78,7 +81,9 @@ for l = 1:n_ictals
     start = 1 + (tr_pts)*(i_psd - 1);
     stop  = start + (tr_pts - 1);
     for c = 1:n_chan
-       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
+       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params); notch filtered
+%       thisdata = filtfilt(b,a,diff(data(c,start:stop))); %low pass  filtered
+%       [S,t,f] = mtspecgramc(thisdata,movingwin,params)
        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
        S = S'; %default is flipped of usual
        S = log(abs(S));%log normalization
@@ -102,8 +107,10 @@ for l = (n_ictals+1):n_tr
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
-%       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params); notch filtered
+%       thisdata = filtfilt(b,a,diff(data(c,start:stop))); %low pass  filtered
+%       [S,t,f] = mtspecgramc(thisdata,movingwin,params);
+       [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params); %regular
         S = S';
         S = log(abs(S));
         f = f';
@@ -119,6 +126,8 @@ for l = (n_ictals+1):n_tr
         end
     end
 end
+
+
 %Second pair to actually create the spectrograms
 mkdir ictal %ictal folder
 fpath = strcat(pwd,'\ictal'); %path to the folder
@@ -130,14 +139,20 @@ for l = 1:n_ictals %iterate over each ictal observation
     start = 1 + (tr_pts)*(i_psd-1); %Calculate the start and end of the points
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
-%       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params); notch filtered
+%       thisdata = filtfilt(b,a,diff(data(c,start:stop))); %low pass  filtered
+%       [S,t,f] = mtspecgramc(thisdata,movingwin,params);
+       [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
         S = S';
         S = log(abs(S));
         f = f';
         S(111:131,:) = [];
         f(111:131) = [];
-        H = (S - globalMin)/(globalMax-globalMin); %Put the image data on the same scale and get between 0 and 1
+        H = (S - globalMin)/(globalMax-globalMin);
+%       Outlier resistant version:
+%        H = (S - (1.05)*(globalMin))/(.95*globalMax-1.05*globalMin); %Put the image data on the same scale and get between 0 and 1
+%        H(find(H>1)) = 1;
+%        H(find(H<0)) = 0;
         if c == 1
             imwrite(H,fileStr); %Form and Save Base layer of TIFF
         else
@@ -157,14 +172,20 @@ for l = (n_ictals+1):n_tr
     start = 1 + (tr_pts)*(i_psd-1);
     stop = start + (tr_pts - 1);
     for c = 1:n_chan
-%       [S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params);filtered
-        [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
+       %[S,t,f] = mtspecgramc(diff(filtfilt(d,data(c,start:stop))),movingwin,params); notch filtered
+%       thisdata = filtfilt(b,a,diff(data(c,start:stop))); %low pass  filtered
+%       [S,t,f] = mtspecgramc(thisdata,movingwin,params);
+       [S,t,f] = mtspecgramc(diff(data(c,start:stop)),movingwin,params);
         S = S';
         S = log(abs(S));
         f = f';
         S(111:131,:) = [];
         f(111:131) = [];
         H = (S - globalMin)/(globalMax-globalMin);
+%       Outlier resistant version:
+%        H = (S - (1.05)*(globalMin))/(.95*globalMax-1.05*globalMin); %Put the image data on the same scale and get between 0 and 1
+%        H(find(H>1)) = 1;
+%        H(find(H<0)) = 0;
         if c == 1
             imwrite(H,fileStr);
         else
