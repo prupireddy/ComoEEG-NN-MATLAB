@@ -1,4 +1,5 @@
--Each of the programs have their own readme in the metadata section, are documented. 
+-Each of the programs have their own readme in the metadata section, are documented. This belongs
+to CNN_V3 and works off of CNN_V2.
 
 -There are three scripts (in order of execution):
 
