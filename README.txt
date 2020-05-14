@@ -1,6 +1,4 @@
--Each of the programs have their own readme in the metadata section, are documented, and I have
-a more in depth notetaking for each program in books (check out books themselves or go to program notes
-in Tyler's stuff in Literature), so look at those as well. Tyler's report has stuff too. This is more of a broad explanation. This contains Tyler's original code (2640 features) just with added confusion matrix code at the end of NN_Train.
+-Each of the programs have their own readme in the metadata section, are documented. Tyler's report has stuff too. This is more of a broad explanation. This contains Tyler's original code (2640 features) just with added confusion matrix code at the end of NN_Train.
 
 -There are three scripts (in order of execution):
 
