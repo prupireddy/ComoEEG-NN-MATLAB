@@ -4,8 +4,7 @@
 % well as an .xlsx spreadsheet containing timestamps for seizure onset and
 % end. Its purpose is to prepare PSD features for all the data points
 % to isolate the highest power interictals in the Boosting procedure (Boosting.m) 
-%that follows. The input .mat file is
-% created from an .edf file using the script tk_stitcher.m. The .xlsx file
+%that follows. The .xlsx file
 % was transcribed by hand from a plaintext file. In the .xlsx file, the
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
@@ -16,9 +15,9 @@
 %Tyler's original model uses actually 2640 features as it is 22 channels x 
 %8 frequency bands x 15 time steps in 20 s window. This method has been
 %commented out. Instead, the method used here is averaged over all 15 time
-%steps, so it is only 176 features. This was done to avoid accuracy-reducing
-%PCA in LDA (explained furhter in the LDA Classifier report I believe) 
- 
+%steps, so it is only 176 features. This was done because once there were
+%excessive features, the out-of-sample accuracy of LDA was reduced.
+
 % In the output matrix, each row corresponds to a single
 %observation, a single trial. The features are average spectral power
 % across a given frequency band in a given channel. Features are grouped
@@ -50,7 +49,7 @@ out_str = 'P4_TIFullPSD_176.mat'
 
 tr_len = 20; % trial length (s) (recommended: 20).
 
-thr = 0.5; % classification threshold
+%thr = 0.5; % classification threshold
 % The "seiz_weight" variable is essentially the percentage of data points
 % in any given trial that are ictal. This classification threshold
 % determines what percentage of points need to be ictal for this script to
