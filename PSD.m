@@ -10,18 +10,22 @@
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
 % .The script generates training data sets, which are 250 randomly selected
-% ictal and 250 randomly selected interictal. They are structured the 
+% ictal and 250 randomly selected interictal.This fixed the logic error
+%that was in Tyler's default version. They are structured the 
 % same as the original model. The Training Label array is 
 % 500 x 1. The script also generates 50
 % batches of 5 consecutive ictal and interictal as the testing sets,
-% looking forward to the n of m analysis (postprocessing). So the Test Label Array is 
+% looking forward to the n of m analysis - they need to be continuous
+%for n_of_m to make sense(postprocessing). n of m postprocessing means
+%if you get n of the m labels correct, your classification is correct. So the Test Label Array is 
 % 100 x 1 (not 500 because it corresponds with the post processed
-% results). Instead of creating 2 times the amount of features and then
+% results). This is designed, across this program and NN_Train, so thatthe
+% averarge prediction matches the label for all 5 windows; hence  100
+% labels for 500 windows. 
+%Instead of creating 2 times the amount of features and then
 % dividing them up randomly in NN_Train into Train and Test, this directly
 % calculates the test and train data sets. 
-
-%The specifics for how each of the datapoints are strutured is stated in my
-%big notebook. 
+ 
 %% User-Defined Parameters
 
 data_str = 'P8_EEG.mat'; % input filename (data)
