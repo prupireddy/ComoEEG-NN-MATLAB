@@ -1,7 +1,7 @@
 %% Explanation
 %This program takes in all of the PSD data as as input - based on 
 %spatially differentiated EEG and either time difference and/or
-%with the ictal classification (default being both). It then computes
+%with the if point is ictal, window is ictal(default being all). It then computes
 %LDA scores for all of the data. It then finds the n interictals with the
 %highest LDA scores, where n in the number of ictals. It then adds the
 %interictals under the ictals to created the boostedData. It also creates a
