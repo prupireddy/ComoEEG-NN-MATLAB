@@ -1,6 +1,6 @@
 %% Metadata
 
-% Not used 
+% Not used in this branch/version
 %% Inputs and Outputs
 
 in_str = 'P10_Features.mat'; % input filename
