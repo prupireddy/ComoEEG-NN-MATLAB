@@ -71,5 +71,5 @@ while complete == false
 end
 
 % Export data to .mat files
-chanlocs = temp_EEG.chanlocs; % struct array that contains data on recording sites
+chanlocs = temp_EEG.chanlocs; % This is meant to extract the labels, but for some reason, it shifts all of the labels over so that 'Event' comes as the first label. The GUI works the same way. If you want the true labels, extract 1 to 23
 save(mat_name,'data','chanlocs','srate','t_end','n_pts','-v7.3'); % saves to .mat file
