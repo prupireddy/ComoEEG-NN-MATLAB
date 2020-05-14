@@ -4,8 +4,7 @@
 % well as an .xlsx spreadsheet containing timestamps for seizure onset and
 % end. Its purpose is to prepare PSD features for all the data points
 % to isolate the highest power interictals in the Boosting procedure (Boosting.m) 
-%that follows. The input .mat file is
-% created from an .edf file using the script tk_stitcher.m. The .xlsx file
+%that follows. The .xlsx file
 % was transcribed by hand from a plaintext file. In the .xlsx file, the
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
@@ -14,7 +13,7 @@
 % done for all of the data, not just randomly picked 100 trials. 
 
 %The current method has time differential calculated right before the
-%spectrogram calculation. In order to revert it back to CNN V2 you will
+%spectrogram calculation. In order to revert it back to CNN V1 you will
 %need to uncomment a couple lines right before spectrogram calculation and add
 %differential right after loading. Just refer to V1 just in case. This
 %method also has the condition that if 1 ictal point is in the window, the
@@ -25,9 +24,9 @@
 %Tyler's original model uses actually 2640 features as it is 22 channels x 
 %8 frequency bands x 15 time steps in 20 s window. This method has been
 %commented out. Instead, the method used here is averaged over all 15 time
-%steps, so it is only 176 features. This was done to avoid accuracy-reducing
-%PCA in LDA (explained furhter in the LDA Classifier report I believe) 
- 
+%steps, so it is only 176 features. This was done because once there were
+%excessive features, the out-of-sample accuracy of LDA was reduced.
+
 % In the output matrix, each row corresponds to a single
 %observation, a single trial. The features are average spectral power
 % across a given frequency band in a given channel. Features are grouped
@@ -60,7 +59,7 @@ out_str = 'P6_TNIFullPSD_176.mat'
 
 tr_len = 20; % trial length (s) (recommended: 20).
 
-thr = 0.5; % classification threshold
+%thr = 0.5; % classification threshold
 % The "seiz_weight" variable is essentially the percentage of data points
 % in any given trial that are ictal. This classification threshold
 % determines what percentage of points need to be ictal for this script to
@@ -125,7 +124,7 @@ end
 
 % Initialize array of results
 % Obtain sample spectrogram for initialization
-d_temp = diff(data(1,1:(tr_pts)));
+d_temp = diff(data(1,1:(tr_pts))); %new time difference method 
 sp_temp = spectrogram(d_temp,window,noverlap,nfft,srate);
 [M,N] = size(sp_temp);
 
@@ -146,15 +145,17 @@ m_pwr = zeros(n_bands*n_chan,1);
 for t = 1:n_tr
 %     seiz_weight1 = (((tr_pts-1)*mean(s((start+1):stop))) +
 %     1/2*(s(stop+1)+s(start)))/tr_pts; %check if it is ictal or interictal
-%     - this is using time difference but not the 1 ictal data point
+%     - this is using old time difference but not the 1 ictal data point
 %     if seiz_weight1 > .5 %This is using neither time difference nor the one ictal data point
 %         State_array(t)=1;%Put ictal state in state array if the trial = ictal
 %     else 
 %         State_array(t)=0;%Put interictal state in state array if trial = interictal
 %     end 
-    %seiz_weight1 = mean(s(start:stop));
-%   if nnz(s(start:(stop+1))) > 0 %Old time differential calculation method 
-    if nnz(s(start:stop)) > 0 %This is using the one ictal data point as the characterization of an ictal window
+    %seiz_weight1 = mean(s(start:stop)); %non-ictal definition and non-time
+    %difference
+%   if nnz(s(start:(stop+1))) > 0 %Old time differential calculation method
+%   and one ictal data point = ictal window definition
+    if nnz(s(start:stop)) > 0 %This is using the one ictal data point as the characterization of an ictal window as well as the new time difference method
         State_array(t) = 1;
     else
         State_array(t) = 0;
