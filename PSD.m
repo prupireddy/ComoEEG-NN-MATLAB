@@ -4,8 +4,7 @@
 % well as an .xlsx spreadsheet containing timestamps for seizure onset and
 % end. Its purpose is to prepare a labeled feature set for use in MATLAB's
 % pattern recognition application, and it outputs another .mat file
-% containing applicable feature and target arrays. The input .mat file is
-% created from an .edf file using the script tk_stitcher.m. The .xlsx file
+% containing applicable feature and target arrays. The .xlsx file
 % was transcribed by hand from a plaintext file. In the .xlsx file, the
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
@@ -16,8 +15,8 @@
 %Tyler's original model uses actually 2640 features as it is 22 channels x 
 %8 frequency bands x 15 time steps in 20 s window. This method has been
 %commented out. Instead, the method used here is averaged over all 15 time
-%steps, so it is only 176 features. This was done to avoid accuracy-reducing
-%PCA in LDA (explained furhter in report) 
+%steps, so it is only 176 features.  This was done because once there were
+%excessive features, the out-of-sample accuracy of LDA was reduced.
  
 % In the output matrix, each row corresponds to a single
 %observation, a single trial. The features are average spectral power
