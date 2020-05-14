@@ -1,6 +1,9 @@
--Each of the programs have their own readme in the metadata section, are documented, so look at those as well. There is also more info
-in "Explanation" within n-of-m analysis folder - this is why everything is designed thus. There is the original brainstorming in that folder
-too. This is more of a broad explanation.
+-Each of the programs have their own readme in the metadata section, are documented, so look at those as well. 
+This is more of a broad explanation.
+
+-This is the only program that is not referenced in the results. However, it's importance is that
+it allowed me to realize that Tyler's actually had a logic error that prevented balance in his classes;
+thus, invalidating his results. 
 
 -There are three scripts (in order of execution):
 
