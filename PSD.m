@@ -1,7 +1,8 @@
 %% Metadata
 
 %
-% This script takes as input a .mat file containing a patient's EEG data as
+% This script takes as input a .mat file containing a patient's 
+% spatially differentiated EEG data as
 % well as an .xlsx spreadsheet containing timestamps for seizure onset and
 % end. Its purpose is to prepare PSD features for all the data points
 % to isolate the highest power interictals in the Boosting procedure (Boosting.m) 
