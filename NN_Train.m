@@ -1,13 +1,6 @@
 %% Metadata
 
-% This script takes as input a cell array and target vector output by
-% the script tk_deepprep. It randomly sorts this array into training and
-% test data and then trains an LSTM sequence classifier on it. The trained
-% neural network is both saved in a .mat file and exported to ONNX format
-% for later use in TensorRT.
-
-% MATLAB's Deep Learning Toolbox must be installed before this script will
-% function properly.
+% Not used in this version/branch
 %% User-Defined Parameters
 
 in_str = 'P10_Features.mat'; % input filename
