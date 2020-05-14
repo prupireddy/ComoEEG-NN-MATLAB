@@ -1,42 +1,6 @@
 %% Metadata
 
-% This script takes as input a .mat file containing a patient's EEG spatially
-%differentiated data as well as an .xlsx spreadsheet containing timestamps for seizure onset and
-% end. Its purpose is to prepare PSD features for all the data points
-% to isolate the highest power interictals in the Boosting procedure (Boosting.m) 
-%that follows. The input .mat file is
-% created from an .edf file using the script tk_stitcher.m. The .xlsx file
-% was transcribed by hand from a plaintext file. In the .xlsx file, the
-% "state" column indicates beginning (1) and end (0) of each seizure.
-
-% The features calculated by this script are the average spectral
-% frequencies across eight bands per channel. This is
-% done for all of the data, not just randomly picked 100 trials. 
-
-%Tyler's original model uses actually 2640 features as it is 22 channels x 
-%8 frequency bands x 15 time steps in 20 s window. This method has been
-%commented out. Instead, the method used here is averaged over all 15 time
-%steps, so it is only 176 features. This was done to avoid accuracy-reducing
-%PCA in LDA (explained furhter in the LDA Classifier report I believe) 
- 
-% In the output matrix, each row corresponds to a single
-%observation, a single trial. The features are average spectral power
-% across a given frequency band in a given channel. Features are grouped
-% such that all band powers from one channel, in increasing order of
-% frequency, appear before the band powers of the next channel (from left
-%to right). This format is necessary so that this would become compatible
-%with LDA. The format described is possessed by PSD_row. It more or less is
-%taking the native format and, proceeding downwards, peeling of the next
-%row and appending it to the top row. Index trackers (which indices are ictal
-%and which indices are interictal) are bundled with the output matrix in
-%the final output. 
-
-%By default, you can calculate all of these PSDs using the time difference.
-%By default, you also consider something as an ictal observation if only
-%one data point is ictal. 
-
-%PSD_cell has the same format as Tyler's
-%original output, but it is not in the final output. 
+%This is not used in this branch/version
 %% User-Defined Parameters
 
 data_str = 'P10_DEEG.mat'; % input filename (data)
@@ -50,7 +14,7 @@ out_str = 'P10_TIDFullPSD_176.mat'
 
 tr_len = 20; % trial length (s) (recommended: 20).
 
-thr = 0.5; % classification threshold
+%thr = 0.5; % classification threshold
 % The "seiz_weight" variable is essentially the percentage of data points
 % in any given trial that are ictal. This classification threshold
 % determines what percentage of points need to be ictal for this script to
