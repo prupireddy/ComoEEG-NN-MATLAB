@@ -4,8 +4,7 @@
 % well as an .xlsx spreadsheet containing timestamps for seizure onset and
 % end. Its purpose is to prepare a labeled feature set for use in MATLAB's
 % pattern recognition application, and it outputs another .mat file
-% containing applicable feature and target arrays. The input .mat file is
-% created from an .edf file using the script tk_stitcher.m. The .xlsx file
+% containing applicable feature and target arrays. The .xlsx file
 % was transcribed by hand from a plaintext file. In the .xlsx file, the
 % "state" column indicates beginning (1) and end (0) of each seizure.
 
@@ -19,15 +18,12 @@
 % such that all band powers from one channel, in increasing order of
 % frequency, appear before the band powers of the next channel.
 
-% This script is identical to tk_dataprep but does not average the spectral
-% power with respect to time. In this case the targets output is an N-by-1
+%In this case the targets output is an N-by-1
 % cell array, where N is the number of observations. Each element of the
 % cell is an array describing the evolution over time for each feature.
 
-% This script is identical to tk_deepprep but the method of gathering
-% trials has changed to accommodate datasets where one class vsatly
-% outweighs the other (which a simple neural net cannot accommodate). The
-% old method is still present, only it's been commented out.
+% This script aims to get a balanced number of ictal and interictal
+% samples, but due to a logic error, does not. 
 %% User-Defined Parameters
 
 data_str = 'P5_EEG.mat'; % input filename (data)
