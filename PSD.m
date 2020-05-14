@@ -1,6 +1,6 @@
 %% Metadata
 
-%This is not used in this branch/version
+%
 %% User-Defined Parameters
 
 data_str = 'P10_DEEG.mat'; % input filename (data)
