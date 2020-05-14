@@ -14,7 +14,7 @@
 % done for all of the data, not just randomly picked 100 trials. 
 
 %The current method has time differential calculated right before the
-%spectrogram calculation. In order to revert it back to CNN V2 you will
+%spectrogram calculation. In order to revert it back to CNN V1 you will
 %need to uncomment a couple lines right before spectrogram calculation and add
 %differential right after loading. Just refer to V1 just in case. This
 %method also has the condition that if 1 ictal point is in the window, the
@@ -146,14 +146,15 @@ m_pwr = zeros(n_bands*n_chan,1);
 for t = 1:n_tr
 %     seiz_weight1 = (((tr_pts-1)*mean(s((start+1):stop))) +
 %     1/2*(s(stop+1)+s(start)))/tr_pts; %check if it is ictal or interictal
-%     - this is using time difference but not the 1 ictal data point -
+%     - this is using old time difference but not the 1 ictal data point -
 %     percentage-based
 %     if seiz_weight1 > .5 %This is using neither time difference nor the one ictal data point
 %         State_array(t)=1;%Put ictal state in state array if the trial = ictal
 %     else 
 %         State_array(t)=0;%Put interictal state in state array if trial = interictal
 %     end 
-    %seiz_weight1 = mean(s(start:stop));
+    %seiz_weight1 = mean(s(start:stop)); %Neither time difference nor ictal
+    %point definition
     %if nnz(s(start:(stop+1))) > 0 %For Old time differential calculation
     %method and one ictal point definition
     if nnz(s(start:stop)) > 0 %This is using the one ictal data point as the characterization of an ictal window and new time differential method
