@@ -1,6 +1,4 @@
--Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the Boosting folder. 
-Brainstorming notes are stored in the Brainstorming folder in the same location. 
-
+-Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation.
 -There are three scripts (in order of execution):
 
 1. EDF_to_MFile: Converts the raw EEG from EDF file format into MATLAB
