@@ -77,41 +77,8 @@ plot(linspace(0,1,length(State_array)),linspace(0,1,length(State_array)))
 hold on
 plot(.0049,1,'*r')
 legend({'ROC Curve','Random Classifier','Best Threshold'},'Location','Southeast')
-%plot naive classifier
 
-% % Determine indices of Data that passes the Threshold Set by the LDA 
-%  projection ROC
-% 
-% bestThreshold=thresholds(16380);
-% 
-% count=0;
-% for i = 1:length(proj)
-%     if proj(i)>bestThreshold
-%         count=count+1;
-%     end
-% end
-% 
-% postLDAind=zeros(count,1);
-% for i = 1:length(proj)
-%     if proj(i)<bestThreshold
-%         postLDAind(i)=i;
-%     end
-% end
-% postLDAind=find(postLDAind);
-% 
-% %% Create Data and Label Arrays for Observations that passed the threshold
-% 
-% postLdaData=zeros(length(postLDAind),128);
-% for i = 1:length(postLDAind)
-%     postLdaData(i,:)=allData(postLDAind(i),:);
-% end
-% 
-% postLdaLabels=zeros(length(postLDAind),1);
-% for i=1:105
-%     if postLDAind(i)<=105
-%         postLdaLabels(i)=1;
-%     end
-% end
+
 
 
 
