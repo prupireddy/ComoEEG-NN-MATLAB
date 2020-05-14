@@ -1,4 +1,5 @@
 -Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. 
+This belongs to CNN_V5 and works off of CNN_V4, which works off of CNN_V1.
 
 -There are three MATLAB scripts (in order of execution):
 
