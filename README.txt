@@ -1,7 +1,6 @@
--Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation. Process-oriented notes are stored in Report in the CNN + Spectrogram. 
-Brainstorming notes are stored in the Brainstorming folder in the same location - but I am not sure if I have uploaded them yet.
+-Each of the programs have their own readme in the metadata section, are documented. This is more of a broad explanation.
 
--There are three scripts (in order of execution):
+-There are three MATLAB scripts (in order of execution):
 
 1. EDF_to_MFile: Converts the raw EEG from EDF file format into MATLAB
 Input: Patient #(insert patient number).edf - raw EDF EEG
